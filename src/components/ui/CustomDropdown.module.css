@@ -1,0 +1,124 @@
+.dropdownContainer {
+    position: relative;
+    width: 100%;
+}
+
+.label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #4B5563;
+    margin-bottom: 0.375rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.trigger {
+    width: 100%;
+    height: 2.5rem;
+    padding: 0 0.875rem;
+    background-color: white;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #111827;
+}
+
+.trigger:hover {
+    border-color: #D1D5DB;
+    background-color: #F9FAFB;
+}
+
+.trigger.active {
+    border-color: #2563EB;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.chevron {
+    color: #9CA3AF;
+    transition: transform 0.2s ease;
+}
+
+.trigger.active .chevron {
+    transform: rotate(180deg);
+}
+
+.menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    z-index: 100;
+    padding: 4px;
+    max-height: 240px;
+    overflow-y: auto;
+    transform-origin: top;
+    animation: slideDown 0.2s cubic-bezier(0, 0, 0.2, 1);
+    scrollbar-width: thin;
+    scrollbar-color: #E5E7EB transparent;
+}
+
+.menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.menu::-webkit-scrollbar-thumb {
+    background-color: #E5E7EB;
+    border-radius: 10px;
+}
+
+.option {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    border: none;
+    background: transparent;
+    text-align: left;
+}
+
+.option:hover {
+    background-color: #F3F4F6;
+    color: #111827;
+}
+
+.option.selected {
+    background-color: #EFF6FF;
+    color: #1D4ED8;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

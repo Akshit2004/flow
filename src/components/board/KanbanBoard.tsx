@@ -2,10 +2,12 @@
 
 import React, { useState, useOptimistic } from 'react';
 import { updateTaskStatus } from '@/actions/task';
+import { updateProjectColumns } from '@/actions/project';
 import TaskCard from './TaskCard';
 import Button from '@/components/ui/Button';
 import CreateTaskModal from './CreateTaskModal';
 import TaskDetailModal from './TaskDetailModal';
+import AddColumnModal from './AddColumnModal';
 import { Plus } from 'lucide-react';
 import styles from './KanbanBoard.module.css';
 
@@ -33,7 +35,7 @@ type Task = {
 const DEFAULT_COLUMNS = [
   { id: 'TODO', title: 'To Do' },
   { id: 'IN_PROGRESS', title: 'In Progress' },
-  { id: 'DONE', title: 'Done' },
+  { id: 'COMPLETED', title: 'Completed' },
 ];
 
 export default function KanbanBoard({ 
@@ -47,6 +49,7 @@ export default function KanbanBoard({
 }) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddColumnModalOpen, setIsAddColumnModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   // Sync state with server/prop updates
@@ -54,12 +57,28 @@ export default function KanbanBoard({
     setTasks(initialTasks);
   }, [initialTasks]);
 
-  // Drag state
-  const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+  React.useEffect(() => {
+    setLocalColumns(columns);
+  }, [columns]);
 
-  const handleDragStart = (e: React.DragEvent, id: string) => {
+  const [localColumns, setLocalColumns] = useState(columns);
+  const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+  const [draggedColId, setDraggedColId] = useState<string | null>(null);
+
+  // Task Drag Handlers
+  const handleTaskDragStart = (e: React.DragEvent, id: string) => {
+    e.stopPropagation();
     setDraggedTaskId(id);
-    e.dataTransfer.setData('text/plain', id);
+    setDraggedColId(null);
+    e.dataTransfer.setData('type', 'TASK'); // Mark as task
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  // Column Drag Handlers
+  const handleColumnDragStart = (e: React.DragEvent, id: string) => {
+    setDraggedColId(id);
+    setDraggedTaskId(null);
+    e.dataTransfer.setData('type', 'COLUMN');
     e.dataTransfer.effectAllowed = 'move';
   };
 
@@ -67,8 +86,36 @@ export default function KanbanBoard({
     e.preventDefault();
   };
 
-  const handleDrop = async (e: React.DragEvent, status: string) => {
-    e.preventDefault();
+  const handleColumnDrop = async (e: React.DragEvent, targetColId: string) => {
+      e.preventDefault();
+      // If dropping a column
+      if (draggedColId && draggedColId !== targetColId) {
+          const oldIndex = localColumns.findIndex(c => c.id === draggedColId);
+          const newIndex = localColumns.findIndex(c => c.id === targetColId);
+          
+          if (oldIndex === -1 || newIndex === -1) return;
+
+          const newCols = [...localColumns];
+          const [movedCol] = newCols.splice(oldIndex, 1);
+          newCols.splice(newIndex, 0, movedCol);
+
+          // Update Order prop
+          const orderedCols = newCols.map((c, i) => ({ ...c, order: i }));
+          
+          setLocalColumns(orderedCols);
+          setDraggedColId(null);
+          
+          await updateProjectColumns(projectId, orderedCols);
+          return;
+      }
+      
+      // If dropping a task
+      if (draggedTaskId) {
+           handleTaskDrop(e, targetColId);
+      }
+  };
+
+  const handleTaskDrop = async (e: React.DragEvent, status: string) => {
     if (!draggedTaskId) return;
 
     const task = tasks.find(t => t._id === draggedTaskId);
@@ -95,25 +142,43 @@ export default function KanbanBoard({
       setSelectedTask(null);
   };
 
+  // Add Column Handler
+  const handleAddColumn = async (title: string) => {
+      const newId = title.toUpperCase().replace(/\s+/g, '_');
+      const newColumn = { id: newId, title, order: localColumns.length };
+      const newColumns = [...localColumns, newColumn];
+      
+      setLocalColumns(newColumns); // Optimistic
+      await updateProjectColumns(projectId, newColumns);
+  };
+
   return (
     <div className={styles.board}>
       <div className={styles.header}>
-        <h2 className={styles.title}>Board</h2>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <h2 className={styles.title}>Board</h2>
+            <Button size="sm" variant="secondary" onClick={() => setIsAddColumnModalOpen(true)} type="button" className="!py-1 !px-2 !text-xs">
+                 <Plus size={14} className="mr-1" /> Column
+            </Button>
+        </div>
         <Button size="sm" onClick={() => setIsModalOpen(true)} type="button">
           <Plus size={16} /> Add Task
         </Button>
       </div>
 
       <div className={styles.columns}>
-        {columns.map(col => {
+        {localColumns.map(col => {
            const colTasks = tasks.filter(t => t.status === col.id);
            
            return (
              <div 
                 key={col.id} 
                 className={styles.column}
+                draggable
+                onDragStart={(e) => handleColumnDragStart(e, col.id)}
                 onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, col.id as Task['status'])}
+                onDrop={(e) => handleColumnDrop(e, col.id)}
+                style={{ cursor: 'grab' }}
              >
                <div className={styles.columnHeader}>
                  <span className={styles.columnTitle}>{col.title}</span>
@@ -129,7 +194,7 @@ export default function KanbanBoard({
                       priority={task.priority}
                       status={task.status}
                       index={index}
-                      onDragStart={handleDragStart}
+                      onDragStart={handleTaskDragStart}
                       onClick={() => setSelectedTask(task)}
                     />
                   ))}
@@ -146,9 +211,17 @@ export default function KanbanBoard({
         />
       )}
 
+      {isAddColumnModalOpen && (
+        <AddColumnModal
+            onClose={() => setIsAddColumnModalOpen(false)}
+            onAdd={handleAddColumn}
+        />
+      )}
+
       {selectedTask && (
         <TaskDetailModal
             task={selectedTask}
+            columns={localColumns}
             onClose={() => setSelectedTask(null)}
             onUpdate={handleTaskUpdate}
             onDelete={handleDeleteTask}

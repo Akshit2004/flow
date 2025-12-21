@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './TaskDetailModal.module.css';
 import Button from '@/components/ui/Button';
+import CustomDropdown from '@/components/ui/CustomDropdown';
 import { updateTaskDetails, getProjectUsers, addComment, deleteTask } from '@/actions/task';
 import { X, Calendar, User, Clock, CheckCircle, Trash2, Send } from 'lucide-react';
 
@@ -24,12 +25,19 @@ interface Task {
 
 interface TaskDetailModalProps {
   task: Task;
+  columns?: { id: string; title: string }[];
   onClose: () => void;
   onUpdate: (task: Task) => void;
   onDelete: (taskId: string) => void;
 }
 
-export default function TaskDetailModal({ task, onClose, onUpdate, onDelete }: TaskDetailModalProps) {
+const PRIORITY_OPTIONS = [
+    { label: 'Low', value: 'LOW', color: '#10B981' },
+    { label: 'Medium', value: 'MEDIUM', color: '#F59E0B' },
+    { label: 'High', value: 'HIGH', color: '#EF4444' },
+];
+
+export default function TaskDetailModal({ task, columns = [], onClose, onUpdate, onDelete }: TaskDetailModalProps) {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || '');
   const [status, setStatus] = useState(task.status);
@@ -44,6 +52,13 @@ export default function TaskDetailModal({ task, onClose, onUpdate, onDelete }: T
       getProjectUsers().then(setUsers);
   }, []);
 
+  // Map columns to options
+  const statusOptions = columns.map(c => ({
+      label: c.title,
+      value: c.id,
+      color: c.id === 'DONE' || c.id === 'COMPLETED' ? '#10B981' : c.id === 'IN_PROGRESS' ? '#3B82F6' : '#6B7280'
+  }));
+
   // Close on Escape
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -55,7 +70,6 @@ export default function TaskDetailModal({ task, onClose, onUpdate, onDelete }: T
 
   const handleSave = async (updates: Partial<Task>) => {
     setIsSaving(true);
-    // Optimistic local update could happen here in parent, but we will wait for server for safety on details
     const result = await updateTaskDetails(task._id, updates as any);
     setIsSaving(false);
     
@@ -76,20 +90,17 @@ export default function TaskDetailModal({ task, onClose, onUpdate, onDelete }: T
     }
   };
 
-  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newStatus = e.target.value;
+  const handleStatusChange = (newStatus: string) => {
     setStatus(newStatus);
     handleSave({ status: newStatus });
   };
 
-  const handlePriorityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newPriority = e.target.value as Task['priority'];
-    setPriority(newPriority);
-    handleSave({ priority: newPriority });
+  const handlePriorityChange = (newPriority: string) => {
+    setPriority(newPriority as any);
+    handleSave({ priority: newPriority as any });
   };
 
-  const handleAssigneeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const newAssignee = e.target.value;
+  const handleAssigneeChange = (newAssignee: string) => {
       setAssignedTo(newAssignee);
       handleSave({ assignedTo: newAssignee as any });
   };
@@ -227,62 +238,41 @@ export default function TaskDetailModal({ task, onClose, onUpdate, onDelete }: T
             {/* Sidebar */}
             <div className={styles.sidebar}>
                 <div className={styles.sidebarGroup}>
-                    <label className={styles.sidebarLabel}>Status</label>
-                    <select 
-                        className={styles.statusSelect} 
-                        value={status} 
+                    <CustomDropdown 
+                        label="Status"
+                        options={statusOptions}
+                        value={status}
                         onChange={handleStatusChange}
-                        style={{
-                            backgroundColor: 
-                                status === 'DONE' ? '#e3fcef' : 
-                                status === 'IN_PROGRESS' ? '#deebff' : '#dfe1e6',
-                            color: 
-                                status === 'DONE' ? '#006644' : 
-                                status === 'IN_PROGRESS' ? '#0747a6' : '#42526e'
-                        }}
-                    >
-                        <option value="TODO">To Do</option>
-                        <option value="IN_PROGRESS">In Progress</option>
-                        <option value="DONE">Done</option>
-                    </select>
+                    />
                 </div>
 
                 <div className={styles.sidebarGroup}>
-                    <label className={styles.sidebarLabel}>Priority</label>
-                    <div className={styles.metaValueControl}>
-                        <select 
-                            className={styles.selectNative} 
-                            value={priority} 
-                            onChange={handlePriorityChange}
-                        >
-                            <option value="LOW">Low</option>
-                            <option value="MEDIUM">Medium</option>
-                            <option value="HIGH">High</option>
-                        </select>
-                    </div>
+                    <CustomDropdown 
+                        label="Priority"
+                        options={PRIORITY_OPTIONS}
+                        value={priority}
+                        onChange={handlePriorityChange}
+                    />
                 </div>
 
                 <div className={styles.sidebarGroup} style={{ border: 'none', background: 'transparent', padding: 0 }}>
                     <div className={styles.sectionHeader}>Details</div>
                     <ul className={styles.metaList}>
                         <li className={styles.metaItem}>
-                            <span className={styles.sidebarLabel}>Assignee</span>
-                            <div className={styles.metaValueControl}>
-                                <select 
-                                    className={styles.selectNative}
-                                    value={assignedTo}
-                                    onChange={handleAssigneeChange}
-                                >
-                                    <option value="">Unassigned</option>
-                                    {users.map(u => (
-                                        <option key={u._id} value={u._id}>{u.name}</option>
-                                    ))}
-                                </select>
-                            </div>
+                            <CustomDropdown 
+                                label="Assignee"
+                                options={[
+                                    { label: 'Unassigned', value: '' },
+                                    ...users.map(u => ({ label: u.name, value: u._id }))
+                                ]}
+                                value={assignedTo}
+                                onChange={handleAssigneeChange}
+                            />
                         </li>
                         <li className={styles.metaItem}>
                             <span className={styles.sidebarLabel}>Due Date</span>
-                            <div className={styles.metaValueControl}>
+                            <div className={styles.dateInputContainer}>
+                                <Calendar size={14} className={styles.calendarIcon} />
                                 <input 
                                     type="date"
                                     className={styles.dateInput}

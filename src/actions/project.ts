@@ -59,10 +59,26 @@ export async function getProjects() {
         .lean();
 
     // Serialize to simple objects to avoid "Only plain objects..." warning in Server Components
-    return projects.map((p) => ({
-        ...p,
+    return projects.map((p: any) => ({
         _id: p._id.toString(),
+        name: p.name,
+        description: p.description,
+        key: p.key,
+        taskCount: p.taskCount,
         owner: p.owner.toString(),
+        members: p.members.map((m: any) => m.toString()),
+        columns: p.columns?.map((c: any) => ({
+            id: c.id,
+            title: c.title,
+            order: c.order,
+            _id: c._id ? c._id.toString() : undefined
+        })) || [],
+        labels: p.labels?.map((l: any) => ({
+            id: l.id,
+            name: l.name,
+            color: l.color,
+            _id: l._id ? l._id.toString() : undefined
+        })) || [],
         createdAt: p.createdAt.toISOString(),
         updatedAt: p.updatedAt.toISOString(),
     }));

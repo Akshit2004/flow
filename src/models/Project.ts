@@ -53,7 +53,7 @@ const ProjectSchema: Schema<IProject> = new Schema(
             default: [
                 { id: 'TODO', title: 'To Do', order: 0 },
                 { id: 'IN_PROGRESS', title: 'In Progress', order: 1 },
-                { id: 'DONE', title: 'Done', order: 2 },
+                { id: 'COMPLETED', title: 'Completed', order: 2 },
             ],
         },
         labels: {
