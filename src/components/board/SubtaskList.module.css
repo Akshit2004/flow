@@ -1,0 +1,150 @@
+.container {
+    margin-top: 8px;
+}
+
+.progressBar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.progressFill {
+    height: 100%;
+    background: var(--success);
+    transition: width 0.3s ease;
+}
+
+.progressText {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    transition: background-color 0.15s ease;
+}
+
+.item:hover {
+    background: var(--border);
+}
+
+.checkbox {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    border: 2px solid var(--border-hover);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    background: transparent;
+    color: transparent;
+}
+
+.checkbox:hover {
+    border-color: var(--primary);
+}
+
+.checkbox.checked {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+}
+
+.text {
+    flex: 1;
+    font-size: 0.875rem;
+    color: var(--text-main);
+    word-break: break-word;
+}
+
+.text.completed {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
+.deleteButton {
+    opacity: 0;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: transparent;
+    border: none;
+}
+
+.item:hover .deleteButton {
+    opacity: 1;
+}
+
+.deleteButton:hover {
+    color: var(--error);
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.addForm {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.addInput {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    background: var(--surface);
+    color: var(--text-main);
+    transition: border-color 0.15s ease;
+}
+
+.addInput:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.addButton {
+    padding: 8px 12px;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background-color 0.15s ease;
+}
+
+.addButton:hover {
+    background: var(--primary-hover);
+}
+
+.addButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.empty {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 12px;
+}

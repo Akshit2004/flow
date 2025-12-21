@@ -1,0 +1,100 @@
+.container {
+    position: relative;
+    width: 100%;
+}
+
+.textarea {
+    width: 100%;
+    min-height: 60px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-family: inherit;
+    resize: vertical;
+    background: var(--surface);
+    color: var(--text-main);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.dropdown {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 100;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.dropdownItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+    border-left: 3px solid transparent;
+}
+
+.dropdownItem:hover {
+    background: var(--background);
+}
+
+.dropdownItem.active {
+    background: rgba(37, 99, 235, 0.1);
+    border-left-color: var(--primary);
+}
+
+.dropdownItem.active .userName {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.userName {
+    font-size: 0.875rem;
+    color: var(--text-main);
+    font-weight: 500;
+}
+
+.noResults {
+    padding: 12px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+}
+
+/* Mention styling for rendered comments */
+.mention {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--primary);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: 500;
+}

@@ -1,0 +1,40 @@
+.toggle {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    cursor: pointer;
+    overflow: hidden;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.toggle:hover {
+    background: var(--border);
+    color: var(--text-main);
+}
+
+.toggle:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.iconWrapper {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.5) rotate(-90deg);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.iconWrapper.visible {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}

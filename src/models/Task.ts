@@ -5,6 +5,13 @@ import { IProject } from './Project';
 export type TaskStatus = string; // Now supports dynamic column IDs
 export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH';
 
+export interface ISubtask {
+    _id: mongoose.Types.ObjectId;
+    text: string;
+    completed: boolean;
+    order: number;
+}
+
 export interface ITask extends Document {
     title: string;
     description?: string;
@@ -14,6 +21,7 @@ export interface ITask extends Document {
     assignedTo?: IUser | mongoose.Types.ObjectId | string;
     dueDate?: Date;
     labels: string[]; // IDs of labels defined in Project
+    subtasks: ISubtask[];
     comments: {
         _id: mongoose.Types.ObjectId;
         text: string;
@@ -66,6 +74,11 @@ const TaskSchema: Schema<ITask> = new Schema(
         dueDate: {
             type: Date,
         },
+        subtasks: [{
+            text: { type: String, required: true },
+            completed: { type: Boolean, default: false },
+            order: { type: Number, default: 0 }
+        }],
         comments: [{
             text: { type: String, required: true },
             user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -82,6 +95,10 @@ const TaskSchema: Schema<ITask> = new Schema(
 );
 
 // Prevent overwrite on HMR
+if (process.env.NODE_ENV === 'development') {
+    delete mongoose.models.Task;
+}
+
 const Task: Model<ITask> =
     mongoose.models.Task || mongoose.model<ITask>('Task', TaskSchema);
 

@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 };
 
 import { ToastProvider } from "@/components/ui/Toast";
+import { ThemeProvider } from "@/components/ui/ThemeProvider";
 
 export default function RootLayout({
   children,
@@ -17,11 +18,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning={true}>
-        <ToastProvider>
-          {children}
-        </ToastProvider>
+        <ThemeProvider>
+          <ToastProvider>
+            {children}
+          </ToastProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -6,6 +6,7 @@ import Project from '@/models/Project';
 import User from '@/models/User';
 import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
+import { logActivity } from './activity';
 
 export interface TaskState {
     error?: string;
@@ -62,6 +63,14 @@ export async function createTask(prevState: TaskState, formData: FormData): Prom
             order: await getNextOrder(projectId, status),
             ticketId,
         });
+
+        // Log activity
+        await logActivity({
+            projectId,
+            taskId: task._id.toString(),
+            action: 'TASK_CREATED',
+            metadata: { title, ticketId }
+        });
     } catch (error) {
         return { error: 'Failed to create task' };
     }
@@ -105,6 +114,12 @@ export async function getTasks(projectId: string) {
         createdAt: t.createdAt.toISOString(),
         updatedAt: t.updatedAt.toISOString(),
         dueDate: t.dueDate?.toISOString(),
+        subtasks: (t as any).subtasks?.map((s: any) => ({
+            _id: s._id.toString(),
+            text: s.text,
+            completed: s.completed,
+            order: s.order
+        })) || [],
         comments: t.comments?.map((c: any) => ({
             _id: c._id.toString(),
             text: c.text,
@@ -140,10 +155,24 @@ export async function updateTaskStatus(taskId: string, newStatus: TaskStatus, ne
 
     await dbConnect();
 
+    const oldTask = await Task.findById(taskId).select('status project').lean();
+
     await Task.findByIdAndUpdate(taskId, {
         status: newStatus,
         order: newOrder
     });
+
+    // Log status change
+    if (oldTask && oldTask.status !== newStatus) {
+        await logActivity({
+            projectId: oldTask.project.toString(),
+            taskId,
+            action: 'TASK_MOVED',
+            field: 'status',
+            oldValue: oldTask.status,
+            newValue: newStatus
+        });
+    }
 
     // We don't revalidate path here for performance in drag operations, 
     // client should update optimistically.
@@ -224,6 +253,14 @@ export async function addComment(taskId: string, text: string) {
 
         if (!task) return { error: 'Task not found' };
 
+        // Log comment activity
+        await logActivity({
+            projectId: task.project.toString(),
+            taskId,
+            action: 'COMMENT_ADDED',
+            metadata: { preview: text.substring(0, 100) }
+        });
+
         revalidatePath(`/dashboard/project/${task.project}`);
 
         const plainTask = task.toObject();
@@ -263,6 +300,14 @@ export async function deleteTask(taskId: string) {
         const task = await Task.findByIdAndDelete(taskId);
         if (!task) return { error: 'Task not found' };
 
+        // Log deletion
+        await logActivity({
+            projectId: task.project.toString(),
+            taskId,
+            action: 'TASK_DELETED',
+            metadata: { title: task.title, ticketId: task.ticketId }
+        });
+
         revalidatePath(`/dashboard/project/${task.project}`);
         return { success: true, taskId };
     } catch (error) {
@@ -273,4 +318,136 @@ export async function deleteTask(taskId: string) {
 async function getNextOrder(projectId: string, status: TaskStatus): Promise<number> {
     const lastTask = await Task.findOne({ project: projectId, status }).sort({ order: -1 });
     return lastTask ? lastTask.order + 1 : 0;
+}
+
+// ============================================
+// SUBTASK ACTIONS
+// ============================================
+
+export async function addSubtask(taskId: string, text: string) {
+    const session = await getSession();
+    if (!session) return { error: 'Unauthorized' };
+
+    await dbConnect();
+
+    try {
+        // Check if task exists first
+        const taskExists = await Task.exists({ _id: taskId });
+        if (!taskExists) return { error: 'Task not found' };
+
+        // Get current subtasks count for order
+        const currentTask = await Task.findById(taskId).select('subtasks project');
+        const order = currentTask?.subtasks?.length || 0;
+        const projectId = currentTask?.project?.toString();
+
+        // Use findOneAndUpdate to atomically push and return the new document
+        const updatedTask = await Task.findOneAndUpdate(
+            { _id: taskId },
+            {
+                $push: {
+                    subtasks: { text, completed: false, order }
+                }
+            },
+            { new: true, runValidators: true }
+        ).select('subtasks').lean();
+
+        if (!updatedTask) return { error: 'Failed to add subtask' };
+
+        // Log activity
+        if (projectId) {
+            await logActivity({
+                projectId,
+                taskId,
+                action: 'SUBTASK_ADDED',
+                metadata: { text }
+            });
+        }
+
+        return {
+            success: true,
+            subtasks: (updatedTask.subtasks || []).map((s: any) => ({
+                _id: s._id.toString(),
+                text: s.text,
+                completed: s.completed,
+                order: s.order
+            }))
+        };
+    } catch (error) {
+        console.error('addSubtask error:', error);
+        return { error: 'Failed to add subtask' };
+    }
+}
+
+export async function toggleSubtask(taskId: string, subtaskId: string) {
+    const session = await getSession();
+    if (!session) return { error: 'Unauthorized' };
+
+    await dbConnect();
+
+    try {
+        const task = await Task.findById(taskId);
+        if (!task) return { error: 'Task not found' };
+
+        const subtask = task.subtasks?.find((s: any) => s._id.toString() === subtaskId);
+        if (!subtask) return { error: 'Subtask not found' };
+
+        const newCompleted = !subtask.completed;
+
+        await Task.updateOne(
+            { _id: taskId, 'subtasks._id': subtaskId },
+            { $set: { 'subtasks.$.completed': newCompleted } }
+        );
+
+        // Log activity if completed
+        if (newCompleted) {
+            await logActivity({
+                projectId: task.project.toString(),
+                taskId,
+                action: 'SUBTASK_COMPLETED',
+                metadata: { text: subtask.text }
+            });
+        }
+
+        const updatedTask = await Task.findById(taskId);
+        return {
+            success: true,
+            subtasks: updatedTask?.subtasks?.map((s: any) => ({
+                _id: s._id.toString(),
+                text: s.text,
+                completed: s.completed,
+                order: s.order
+            })) || []
+        };
+    } catch (error) {
+        return { error: 'Failed to toggle subtask' };
+    }
+}
+
+export async function deleteSubtask(taskId: string, subtaskId: string) {
+    const session = await getSession();
+    if (!session) return { error: 'Unauthorized' };
+
+    await dbConnect();
+
+    try {
+        const updatedTask = await Task.findByIdAndUpdate(
+            taskId,
+            { $pull: { subtasks: { _id: subtaskId } } },
+            { new: true }
+        );
+
+        if (!updatedTask) return { error: 'Task not found' };
+
+        return {
+            success: true,
+            subtasks: updatedTask.subtasks?.map((s: any) => ({
+                _id: s._id.toString(),
+                text: s.text,
+                completed: s.completed,
+                order: s.order
+            })) || []
+        };
+    } catch (error) {
+        return { error: 'Failed to delete subtask' };
+    }
 }

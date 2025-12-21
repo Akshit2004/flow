@@ -230,6 +230,26 @@
     padding: 1rem;
     border-top: 1px solid var(--border);
     display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.themeRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.themeLabel {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.footerBottom {
+    display: flex;
     align-items: center;
     justify-content: space-between;
 }

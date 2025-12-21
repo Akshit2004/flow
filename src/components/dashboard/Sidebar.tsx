@@ -9,6 +9,7 @@ import Button from "@/components/ui/Button";
 import styles from "@/app/dashboard/layout.module.css";
 import clsx from "clsx";
 import CreateProjectModal from "@/components/board/CreateProjectModal";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 interface Project {
   _id: string;
@@ -31,7 +32,7 @@ export default function Sidebar({ projects, user }: { projects: Project[]; user?
           <Menu size={24} />
         </button>
         <span className={styles.brandName}>Flow</span>
-        <div className={styles.placeholder} />
+        <ThemeToggle />
       </header>
 
       {/* Sidebar */}
@@ -114,20 +115,28 @@ export default function Sidebar({ projects, user }: { projects: Project[]; user?
         </nav>
 
         <div className={styles.sidebarFooter}>
-            <div className={styles.userProfile}>
-                <div className={styles.avatar}>
-                    {user?.name?.[0] || 'U'}
-                </div>
-                <div className={styles.userInfo}>
-                    <p className={styles.userName}>User</p>
-                    <p className={styles.userEmail}>user@flow.app</p>
-                </div>
+            {/* Theme Toggle */}
+            <div className={styles.themeRow}>
+                <span className={styles.themeLabel}>Theme</span>
+                <ThemeToggle />
             </div>
-            <form action={logout}>
-                <button className={styles.logoutButtonIcon} type="submit" title="Sign Out">
-                    <LogOut size={18} />
-                </button>
-            </form>
+            
+            <div className={styles.footerBottom}>
+                <div className={styles.userProfile}>
+                    <div className={styles.avatar}>
+                        {user?.name?.[0] || 'U'}
+                    </div>
+                    <div className={styles.userInfo}>
+                        <p className={styles.userName}>User</p>
+                        <p className={styles.userEmail}>user@flow.app</p>
+                    </div>
+                </div>
+                <form action={logout}>
+                    <button className={styles.logoutButtonIcon} type="submit" title="Sign Out">
+                        <LogOut size={18} />
+                    </button>
+                </form>
+            </div>
         </div>
       </aside>
 

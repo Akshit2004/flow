@@ -1,11 +1,11 @@
 import { getTasks } from "@/actions/task";
-import KanbanBoard from "@/components/board/KanbanBoard";
 import { notFound } from "next/navigation";
 import dbConnect from "@/lib/db";
 import Project from "@/models/Project";
 import { getSession } from "@/lib/auth";
 import { Settings } from 'lucide-react';
 import Link from 'next/link';
+import ProjectView from "@/components/project/ProjectView";
 
 type Params = Promise<{ id: string }>;
 
@@ -43,7 +43,7 @@ export default async function ProjectPage({ params }: { params: Params }) {
             <Settings size={20} />
         </Link>
       </div>
-      <KanbanBoard 
+      <ProjectView 
         projectId={id} 
         initialTasks={tasks} 
         columns={project.columns?.map((c: any) => ({ 

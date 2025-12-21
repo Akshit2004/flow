@@ -20,6 +20,12 @@ type Task = {
   assignedTo?: { _id: string; name: string; avatar?: string } | string;
   dueDate?: string;
   ticketId?: string;
+  subtasks?: {
+    _id: string;
+    text: string;
+    completed: boolean;
+    order: number;
+  }[];
   comments?: { 
     _id: string; 
     text: string; 
@@ -28,6 +34,8 @@ type Task = {
   }[];
   order: number;
   project: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 // Column definitions

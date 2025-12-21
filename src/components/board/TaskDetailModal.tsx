@@ -4,9 +4,21 @@ import { useState, useEffect } from 'react';
 import styles from './TaskDetailModal.module.css';
 import Button from '@/components/ui/Button';
 import CustomDropdown from '@/components/ui/CustomDropdown';
+import MentionInput from '@/components/ui/MentionInput';
 import { updateTaskDetails, getProjectUsers, addComment, deleteTask } from '@/actions/task';
-import { X, Calendar, User, Clock, CheckCircle, Trash2, Send } from 'lucide-react';
+import { X, Calendar, User, Clock, CheckCircle, Trash2, Send, History, ListChecks } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
+import ActivityFeed from './ActivityFeed';
+import SubtaskList from './SubtaskList';
+import { renderMentions } from '@/lib/mentions';
+import mentionStyles from '@/components/ui/MentionInput.module.css';
+
+interface Subtask {
+  _id: string;
+  text: string;
+  completed: boolean;
+  order: number;
+}
 
 interface Task {
   _id: string;
@@ -21,6 +33,7 @@ interface Task {
   assignedTo?: { _id: string; name: string; avatar?: string } | string;
   dueDate?: string;
   ticketId?: string;
+  subtasks?: Subtask[];
   comments?: { _id: string; text: string; user: { _id: string; name: string; avatar?: string } | string; createdAt: string }[];
 }
 
@@ -49,6 +62,7 @@ export default function TaskDetailModal({ task, columns = [], onClose, onUpdate,
   const [newComment, setNewComment] = useState('');
   const [users, setUsers] = useState<{ _id: string; name: string }[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [subtasks, setSubtasks] = useState<Subtask[]>(task.subtasks || []);
 
   useEffect(() => {
       getProjectUsers().then(setUsers);
@@ -196,6 +210,19 @@ export default function TaskDetailModal({ task, columns = [], onClose, onUpdate,
                     />
                 </div>
 
+                {/* Subtasks/Checklist Section */}
+                <div className={styles.section}>
+                    <div className={styles.sectionHeader} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <ListChecks size={16} />
+                        Checklist
+                    </div>
+                    <SubtaskList 
+                        taskId={task._id} 
+                        subtasks={subtasks} 
+                        onUpdate={setSubtasks} 
+                    />
+                </div>
+
                 {/* Comments Section */}
                 <div className={styles.section}>
                     <div className={styles.sectionHeader}>Activity</div>
@@ -231,11 +258,12 @@ export default function TaskDetailModal({ task, columns = [], onClose, onUpdate,
                             <User size={16} />
                         </div>
                         <div className={styles.commentInputContainer}>
-                            <textarea
-                                className={styles.commentInput}
+                            <MentionInput
                                 value={newComment}
-                                onChange={(e) => setNewComment(e.target.value)}
-                                placeholder="Add a comment..."
+                                onChange={setNewComment}
+                                users={users}
+                                placeholder="Add a comment... (use @ to mention)"
+                                className={styles.commentInput}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && !e.shiftKey) {
                                         e.preventDefault();
