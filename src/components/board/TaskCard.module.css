@@ -1,0 +1,58 @@
+.card {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    box-shadow: var(--shadow-sm);
+    cursor: grab;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
+}
+
+.card:active {
+    cursor: grabbing;
+}
+
+.title {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    word-break: break-word;
+}
+
+.meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.priority {
+    padding: 0.125rem 0.375rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    letter-spacing: 0.025em;
+}
+
+.priorityLow {
+    background-color: #ECFDF5;
+    color: #059669;
+}
+
+.priorityMedium {
+    background-color: #FEF3C7;
+    color: #D97706;
+}
+
+.priorityHigh {
+    background-color: #FEF2F2;
+    color: #DC2626;
+}
