@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button';
 import CustomDropdown from '@/components/ui/CustomDropdown';
 import { updateTaskDetails, getProjectUsers, addComment, deleteTask } from '@/actions/task';
 import { X, Calendar, User, Clock, CheckCircle, Trash2, Send } from 'lucide-react';
+import { useToast } from '@/components/ui/Toast';
 
 interface Task {
   _id: string;
@@ -38,6 +39,7 @@ const PRIORITY_OPTIONS = [
 ];
 
 export default function TaskDetailModal({ task, columns = [], onClose, onUpdate, onDelete }: TaskDetailModalProps) {
+  const { confirmAction } = useToast();
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || '');
   const [status, setStatus] = useState(task.status);
@@ -68,9 +70,27 @@ export default function TaskDetailModal({ task, columns = [], onClose, onUpdate,
     return () => window.removeEventListener('keydown', handleEsc);
   }, [onClose]);
 
-  const handleSave = async (updates: Partial<Task>) => {
+  const hasChanges = 
+    title !== task.title || 
+    description !== (task.description || '') || 
+    status !== task.status || 
+    priority !== task.priority || 
+    assignedTo !== (typeof task.assignedTo === 'object' ? task.assignedTo?._id : task.assignedTo || '') ||
+    dueDate !== (task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '');
+
+  const handleApplyChanges = async () => {
+    if (!hasChanges) return;
+    
     setIsSaving(true);
-    const result = await updateTaskDetails(task._id, updates as any);
+    const updates: any = {};
+    if (title !== task.title) updates.title = title;
+    if (description !== (task.description || '')) updates.description = description;
+    if (status !== task.status) updates.status = status;
+    if (priority !== task.priority) updates.priority = priority;
+    if (assignedTo !== (typeof task.assignedTo === 'object' ? task.assignedTo?._id : task.assignedTo || '')) updates.assignedTo = assignedTo || null;
+    if (dueDate !== (task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '')) updates.dueDate = dueDate || null;
+
+    const result = await updateTaskDetails(task._id, updates);
     setIsSaving(false);
     
     if (result.success && result.task) {
@@ -78,37 +98,20 @@ export default function TaskDetailModal({ task, columns = [], onClose, onUpdate,
     }
   };
 
-  const handleTitleBlur = () => {
-    if (title !== task.title) {
-      handleSave({ title });
-    }
-  };
-
-  const handleDescriptionBlur = () => {
-    if (description !== (task.description || '')) {
-      handleSave({ description });
-    }
-  };
-
   const handleStatusChange = (newStatus: string) => {
     setStatus(newStatus);
-    handleSave({ status: newStatus });
   };
 
   const handlePriorityChange = (newPriority: string) => {
     setPriority(newPriority as any);
-    handleSave({ priority: newPriority as any });
   };
 
   const handleAssigneeChange = (newAssignee: string) => {
       setAssignedTo(newAssignee);
-      handleSave({ assignedTo: newAssignee as any });
   };
 
   const handleDueDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newDate = e.target.value;
-      setDueDate(newDate);
-      handleSave({ dueDate: (newDate || null) as any });
+      setDueDate(e.target.value);
   };
 
   const handleAddComment = async () => {
@@ -122,7 +125,14 @@ export default function TaskDetailModal({ task, columns = [], onClose, onUpdate,
   };
 
   const handleDelete = async () => {
-      if (confirm('Are you sure you want to delete this task?')) {
+      const ok = await confirmAction({
+          title: 'Delete Task',
+          message: 'Are you sure you want to delete this task? This action cannot be undone.',
+          confirmText: 'Delete',
+          type: 'danger'
+      });
+      
+      if (ok) {
           const result = await deleteTask(task._id);
           if (result.success) {
               onDelete(task._id);
@@ -139,10 +149,22 @@ export default function TaskDetailModal({ task, columns = [], onClose, onUpdate,
         {/* Header */}
         <div className={styles.header}>
             <div className={styles.breadcrumbs}>
-                {/* Assuming project naming convention or passing project name could be an improvement */}
                 {task.ticketId || `PROJECT / ${task._id.slice(-4).toUpperCase()}`}
+                {hasChanges && (
+                    <span className={styles.unsavedIndicator}>
+                        <Clock size={14} /> Unsaved Changes
+                    </span>
+                )}
             </div>
             <div className={styles.actionButtons}>
+                <button 
+                    className={styles.saveButton} 
+                    onClick={handleApplyChanges}
+                    disabled={!hasChanges || isSaving}
+                >
+                    <CheckCircle size={18} />
+                    {isSaving ? 'Saving...' : 'Save'}
+                </button>
                 <button className={`${styles.iconButton} ${styles.deleteButton}`} onClick={handleDelete} title="Delete Task">
                     <Trash2 size={20} />
                 </button>
@@ -160,7 +182,6 @@ export default function TaskDetailModal({ task, columns = [], onClose, onUpdate,
                         className={styles.titleInput}
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        onBlur={handleTitleBlur}
                         placeholder="Task Title"
                     />
                 </div>
@@ -171,7 +192,6 @@ export default function TaskDetailModal({ task, columns = [], onClose, onUpdate,
                         className={styles.descriptionInput}
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        onBlur={handleDescriptionBlur}
                         placeholder="Add a description..."
                     />
                 </div>

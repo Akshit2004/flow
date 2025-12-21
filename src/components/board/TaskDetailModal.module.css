@@ -47,7 +47,43 @@
 
 .actionButtons {
     display: flex;
-    gap: 12px;
+    align-items: center;
+    gap: 8px;
+}
+
+.saveButton {
+    background: #0052cc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.saveButton:hover:not(:disabled) {
+    background: #0065ff;
+}
+
+.saveButton:disabled {
+    background: #ebecf0;
+    color: #a5adba;
+    cursor: not-allowed;
+}
+
+.unsavedIndicator {
+    font-size: 12px;
+    color: #de350b;
+    font-weight: 600;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .iconButton {

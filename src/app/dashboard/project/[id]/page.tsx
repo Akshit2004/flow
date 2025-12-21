@@ -16,7 +16,13 @@ export default async function ProjectPage({ params }: { params: Params }) {
   if (!session) return notFound();
 
   await dbConnect();
-  const project = await Project.findOne({ _id: id, owner: session.userId }).lean();
+  const project = await Project.findOne({
+    _id: id,
+    $or: [
+      { owner: session.userId },
+      { members: session.userId }
+    ]
+  }).lean();
 
   if (!project) {
     return notFound();

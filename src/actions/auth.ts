@@ -34,7 +34,7 @@ export async function signup(prevState: any, formData: FormData) {
             password: hashedPassword,
         });
 
-        await createSession(user._id.toString());
+        await createSession(user._id.toString(), user.email, user.name);
     } catch (error) {
         return { error: 'Something went wrong' };
     }
@@ -64,7 +64,7 @@ export async function login(prevState: any, formData: FormData) {
         return { error: 'Invalid credentials' };
     }
 
-    await createSession(user._id.toString());
+    await createSession(user._id.toString(), user.email, user.name);
     redirect('/dashboard');
 }
 

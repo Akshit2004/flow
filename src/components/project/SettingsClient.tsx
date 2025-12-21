@@ -5,24 +5,29 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
     updateProjectDetails, 
-    addProjectMember, 
     removeProjectMember, 
     updateProjectColumns,
     updateProjectLabels,
-    deleteProject 
+    deleteProject
 } from '@/actions/project';
+import { addProjectMember, revokeInvitation } from '@/actions/invite';
 import Button from '@/components/ui/Button';
-import { ArrowLeft, Trash2, Plus, X, Save, User as UserIcon, Tag, Columns } from 'lucide-react';
+import { ArrowLeft, Trash2, Plus, X, Save, User as UserIcon, Tag, Columns, Mail } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/components/ui/Toast';
 
 interface ProjectSettingsProps {
     project: any;
+    initialInvitations?: any[];
 }
 
-export default function SettingsClient({ project }: ProjectSettingsProps) {
+export default function SettingsClient({ project, initialInvitations = [] }: ProjectSettingsProps) {
     const router = useRouter();
+    const { showToast, confirmAction } = useToast();
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('general'); // general, members, columns, labels, danger
+
+    const [invitations, setInvitations] = useState(initialInvitations);
 
     // General State
     const [name, setName] = useState(project.name || '');
@@ -45,8 +50,8 @@ export default function SettingsClient({ project }: ProjectSettingsProps) {
         setLoading(true);
         const res = await updateProjectDetails(project._id, { name, description, key });
         setLoading(false);
-        if (res.error) alert(res.error);
-        else alert('Saved!');
+        if (res.error) showToast(res.error, 'error');
+        else showToast('Project details updated successfully!', 'success');
     };
 
     const handleAddMember = async () => {
@@ -54,36 +59,66 @@ export default function SettingsClient({ project }: ProjectSettingsProps) {
         setLoading(true);
         const res = await addProjectMember(project._id, inviteEmail);
         setLoading(false);
-        if (res.error) alert(res.error);
+        if (res.error) showToast(res.error, 'error');
         else {
             setInviteEmail('');
-            router.refresh(); // Refresh to see new member
+            showToast('Invitation sent! Your colleague will receive an email shortly.', 'success');
+            router.refresh(); 
+        }
+    };
+
+    const handleRevokeInvite = async (id: string) => {
+        const ok = await confirmAction({
+            title: 'Revoke Invitation',
+            message: 'Are you sure you want to revoke this invitation? The link will no longer work.',
+            confirmText: 'Revoke',
+            type: 'danger'
+        });
+        if (!ok) return;
+
+        setLoading(true);
+        const res = await revokeInvitation(id);
+        setLoading(false);
+        if (res.error) showToast(res.error, 'error');
+        else {
+            showToast('Invitation revoked.', 'success');
+            router.refresh();
         }
     };
 
     const handleRemoveMember = async (userId: string) => {
-        if (!confirm('Remove this member?')) return;
+        const ok = await confirmAction({
+            title: 'Remove Member',
+            message: 'Are you sure you want to remove this member from the project?',
+            confirmText: 'Remove',
+            type: 'danger'
+        });
+        if (!ok) return;
+
         setLoading(true);
         const res = await removeProjectMember(project._id, userId);
         setLoading(false);
-        if (res.error) alert(res.error);
-        else router.refresh();
+        if (res.error) showToast(res.error, 'error');
+        else {
+            showToast('Member removed from project.', 'success');
+            router.refresh();
+        }
     };
 
     const handleUpdateColumns = async () => {
         setLoading(true);
         const res = await updateProjectColumns(project._id, columns);
         setLoading(false);
-        if (res.error) alert(res.error);
-        else alert('Columns updated!');
+        if (res.error) showToast(res.error, 'error');
+        else showToast('Columns updated successfully!', 'success');
     };
 
     const handleUpdateLabels = async () => {
         setLoading(true);
         const res = await updateProjectLabels(project._id, labels);
         setLoading(false);
-        if (res.error) alert(res.error);
-        else alert('Labels updated!');
+        if (res.error) showToast(res.error, 'error');
+        else showToast('Labels updated successfully!', 'success');
     };
 
     const handleDeleteProject = async () => {
@@ -91,7 +126,7 @@ export default function SettingsClient({ project }: ProjectSettingsProps) {
         if (!confirmName) return;
         
         if (confirmName !== project.name) {
-            alert('Project name does not match. Deletion cancelled.');
+            showToast('Project name does not match. Deletion cancelled.', 'warning');
             return;
         }
 
@@ -99,7 +134,7 @@ export default function SettingsClient({ project }: ProjectSettingsProps) {
         const res = await deleteProject(project._id);
         if (res.error) {
             setLoading(false);
-            alert(res.error);
+            showToast(res.error, 'error');
         } else {
             // Force full reload to ensure dashboard updates
             window.location.href = '/dashboard';
@@ -211,7 +246,7 @@ export default function SettingsClient({ project }: ProjectSettingsProps) {
                                         <div key={member._id} className={styles.memberItem}>
                                             <div className={styles.memberInfo}>
                                                 <div className={styles.avatar}>
-                                                    {member.avatar ? <img src={member.avatar} style={{ width: '100%', height: '100%', borderRadius: '50%' }} /> : member.name[0]}
+                                                    {member.avatar ? <img src={member.avatar} alt={member.name} style={{ width: '100%', height: '100%', borderRadius: '50%' }} /> : member.name[0]}
                                                 </div>
                                                 <div>
                                                     <div className={styles.memberName}>{member.name}</div>
@@ -219,7 +254,7 @@ export default function SettingsClient({ project }: ProjectSettingsProps) {
                                                 </div>
                                                 {project.owner && project.owner._id === member._id && (
                                                      <span className={styles.badge}>OWNER</span>
-                                                )}
+                                                 )}
                                             </div>
                                             {(!project.owner || project.owner._id !== member._id) && (
                                                 <button onClick={() => handleRemoveMember(member._id)} className={styles.removeButton}>
@@ -229,6 +264,31 @@ export default function SettingsClient({ project }: ProjectSettingsProps) {
                                         </div>
                                     ))}
                                 </div>
+
+                                {invitations.length > 0 && (
+                                    <div className={styles.invitationSection}>
+                                        <h3 className={styles.sectionSubtitle}>Pending Invitations</h3>
+                                        <div className={styles.memberList}>
+                                            {invitations.map((invite: any) => (
+                                                <div key={invite._id} className={styles.memberItem}>
+                                                    <div className={styles.memberInfo}>
+                                                        <div className={styles.avatar} style={{ background: '#F3F4F6', color: '#6B7280' }}>
+                                                            <Mail size={16} />
+                                                        </div>
+                                                        <div>
+                                                            <div className={styles.memberName}>{invite.email}</div>
+                                                            <div className={styles.memberEmail}>Expires: {new Date(invite.expiresAt).toLocaleDateString()}</div>
+                                                        </div>
+                                                        <span className={styles.badge} style={{ background: '#FEF3C7', color: '#92400E' }}>PENDING</span>
+                                                    </div>
+                                                    <button onClick={() => handleRevokeInvite(invite._id)} className={styles.removeButton} title="Revoke Invitation">
+                                                        <X size={16} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                          </div>
                     )}

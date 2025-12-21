@@ -6,7 +6,6 @@ import User from '@/models/User';
 import Task from '@/models/Task';
 import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
-
 export interface ProjectState {
     error?: string;
     success?: boolean;
@@ -54,7 +53,12 @@ export async function getProjects() {
     await dbConnect();
 
     // Sort by newest first
-    const projects = await Project.find({ owner: session.userId })
+    const projects = await Project.find({
+        $or: [
+            { owner: session.userId },
+            { members: session.userId }
+        ]
+    })
         .sort({ createdAt: -1 })
         .lean();
 
@@ -89,7 +93,13 @@ export async function getProjectDetails(projectId: string) {
     if (!session) return null;
 
     await dbConnect();
-    const project = await Project.findById(projectId)
+    const project = await Project.findOne({
+        _id: projectId,
+        $or: [
+            { owner: session.userId },
+            { members: session.userId }
+        ]
+    })
         .populate('members', 'name email avatar')
         .populate('owner', 'name email avatar')
         .lean();
@@ -147,27 +157,12 @@ export async function updateProjectDetails(projectId: string, data: { name: stri
     }
 }
 
-export async function addProjectMember(projectId: string, email: string) {
-    const session = await getSession();
-    if (!session) return { error: 'Unauthorized' };
 
-    await dbConnect();
-    try {
-        const user = await User.findOne({ email });
-        if (!user) return { error: 'User not found' };
 
-        await Project.findByIdAndUpdate(projectId, {
-            $addToSet: { members: user._id }
-        });
 
-        revalidatePath(`/dashboard/project/${projectId}/settings`);
-        return { success: true };
-    } catch (error) {
-        return { error: 'Failed to add member' };
-    }
-}
 
 export async function removeProjectMember(projectId: string, userId: string) {
+    // ... (rest of the file)
     const session = await getSession();
     if (!session) return { error: 'Unauthorized' };
 

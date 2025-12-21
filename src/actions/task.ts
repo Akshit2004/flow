@@ -75,6 +75,18 @@ export async function getTasks(projectId: string) {
     if (!session) return [];
 
     await dbConnect();
+
+    // Verify membership
+    const project = await Project.findOne({
+        _id: projectId,
+        $or: [
+            { owner: session.userId },
+            { members: session.userId }
+        ]
+    });
+
+    if (!project) return [];
+
     const tasks = await Task.find({ project: projectId })
         .sort({ order: 1 })
         .populate('comments.user', 'name email avatar')

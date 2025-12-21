@@ -15,7 +15,12 @@ export default async function DashboardLayout({
 
   await dbConnect();
   // Fetch only name and _id for the sidebar
-  const projects = await Project.find({ owner: session.userId })
+  const projects = await Project.find({
+    $or: [
+      { owner: session.userId },
+      { members: session.userId }
+    ]
+  })
     .select("name _id")
     .lean();
 

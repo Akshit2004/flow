@@ -20,9 +20,9 @@ export async function decrypt(input: string): Promise<any> {
     return payload;
 }
 
-export async function createSession(userId: string) {
+export async function createSession(userId: string, userEmail: string, userName: string) {
     const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-    const session = await encrypt({ userId, expires });
+    const session = await encrypt({ userId, userEmail, userName, expires });
 
     const cookieStore = await cookies();
     cookieStore.set('session', session, {
