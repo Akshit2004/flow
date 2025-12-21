@@ -30,19 +30,12 @@ export default function SubtaskList({ taskId, subtasks, onUpdate }: SubtaskListP
         if (!newSubtask.trim()) return;
         
         setIsAdding(true);
-        console.log('Adding subtask:', newSubtask.trim(), 'to task:', taskId);
-        
         const result = await addSubtask(taskId, newSubtask.trim());
-        console.log('addSubtask result:', result);
-        
         setIsAdding(false);
         
         if (result.success && result.subtasks) {
-            console.log('Updating subtasks with:', result.subtasks);
             onUpdate(result.subtasks);
             setNewSubtask('');
-        } else {
-            console.error('Failed to add subtask:', result.error);
         }
     };
 
