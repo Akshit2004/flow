@@ -5,27 +5,49 @@ import { updateTaskStatus } from '@/actions/task';
 import TaskCard from './TaskCard';
 import Button from '@/components/ui/Button';
 import CreateTaskModal from './CreateTaskModal';
+import TaskDetailModal from './TaskDetailModal';
 import { Plus } from 'lucide-react';
 import styles from './KanbanBoard.module.css';
 
 type Task = {
   _id: string;
   title: string;
-  status: 'TODO' | 'IN_PROGRESS' | 'DONE';
+  description?: string;
+  status: string;
   priority: 'LOW' | 'MEDIUM' | 'HIGH';
+  assignedTo?: { _id: string; name: string; avatar?: string } | string;
+  dueDate?: string;
+  ticketId?: string;
+  comments?: { 
+    _id: string; 
+    text: string; 
+    user: { _id: string; name: string; avatar?: string } | string; 
+    createdAt: string 
+  }[];
   order: number;
+  project: string;
 };
 
 // Column definitions
-const COLUMNS = [
+// Default columns if none provided
+const DEFAULT_COLUMNS = [
   { id: 'TODO', title: 'To Do' },
   { id: 'IN_PROGRESS', title: 'In Progress' },
   { id: 'DONE', title: 'Done' },
 ];
 
-export default function KanbanBoard({ projectId, initialTasks }: { projectId: string; initialTasks: Task[] }) {
+export default function KanbanBoard({ 
+    projectId, 
+    initialTasks, 
+    columns = DEFAULT_COLUMNS 
+}: { 
+    projectId: string; 
+    initialTasks: Task[]; 
+    columns?: { id: string; title: string }[] 
+}) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   // Sync state with server/prop updates
   React.useEffect(() => {
@@ -45,7 +67,7 @@ export default function KanbanBoard({ projectId, initialTasks }: { projectId: st
     e.preventDefault();
   };
 
-  const handleDrop = async (e: React.DragEvent, status: Task['status']) => {
+  const handleDrop = async (e: React.DragEvent, status: string) => {
     e.preventDefault();
     if (!draggedTaskId) return;
 
@@ -63,6 +85,16 @@ export default function KanbanBoard({ projectId, initialTasks }: { projectId: st
     await updateTaskStatus(draggedTaskId, status, 0); 
   };
 
+  const handleTaskUpdate = (updatedTask: Task) => {
+    setTasks(prev => prev.map(t => t._id === updatedTask._id ? updatedTask : t));
+    setSelectedTask(updatedTask); // Update the modal view too
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+      setTasks(prev => prev.filter(t => t._id !== taskId));
+      setSelectedTask(null);
+  };
+
   return (
     <div className={styles.board}>
       <div className={styles.header}>
@@ -73,7 +105,7 @@ export default function KanbanBoard({ projectId, initialTasks }: { projectId: st
       </div>
 
       <div className={styles.columns}>
-        {COLUMNS.map(col => {
+        {columns.map(col => {
            const colTasks = tasks.filter(t => t.status === col.id);
            
            return (
@@ -88,17 +120,19 @@ export default function KanbanBoard({ projectId, initialTasks }: { projectId: st
                  <span className={styles.count}>{colTasks.length}</span>
                </div>
                <div className={styles.columnContent}>
-                 {colTasks.map((task, index) => (
-                   <TaskCard 
-                      key={task._id} 
-                      id={task._id} 
-                      title={task.title} 
+                  {colTasks.map((task, index) => (
+                    <TaskCard
+                      key={task._id}
+                      id={task._id}
+                      ticketId={task.ticketId}
+                      title={task.title}
                       priority={task.priority}
                       status={task.status}
                       index={index}
                       onDragStart={handleDragStart}
-                   />
-                 ))}
+                      onClick={() => setSelectedTask(task)}
+                    />
+                  ))}
                </div>
              </div>
            )
@@ -109,6 +143,15 @@ export default function KanbanBoard({ projectId, initialTasks }: { projectId: st
         <CreateTaskModal 
           projectId={projectId} 
           onClose={() => setIsModalOpen(false)} 
+        />
+      )}
+
+      {selectedTask && (
+        <TaskDetailModal
+            task={selectedTask}
+            onClose={() => setSelectedTask(null)}
+            onUpdate={handleTaskUpdate}
+            onDelete={handleDeleteTask}
         />
       )}
     </div>

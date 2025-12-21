@@ -5,6 +5,11 @@ export interface IProject extends Document {
     name: string;
     description?: string;
     owner: IUser; // Reference to User
+    key: string;
+    taskCount: number;
+    members: (IUser | mongoose.Types.ObjectId | string)[];
+    columns: { id: string; title: string; order: number }[];
+    labels: { id: string; name: string; color: string }[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -16,6 +21,16 @@ const ProjectSchema: Schema<IProject> = new Schema(
             required: [true, 'Please provide a project name'],
             maxlength: [100, 'Name cannot be more than 100 characters'],
         },
+        key: {
+            type: String,
+            unique: true, // Should be unique per project
+            trim: true,
+            uppercase: true,
+        },
+        taskCount: {
+            type: Number,
+            default: 0,
+        },
         description: {
             type: String,
             maxlength: [500, 'Description cannot be more than 500 characters'],
@@ -25,6 +40,30 @@ const ProjectSchema: Schema<IProject> = new Schema(
             ref: 'User',
             required: true,
         },
+        members: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+        }],
+        columns: {
+            type: [{
+                id: { type: String, required: true },
+                title: { type: String, required: true },
+                order: { type: Number, required: true },
+            }],
+            default: [
+                { id: 'TODO', title: 'To Do', order: 0 },
+                { id: 'IN_PROGRESS', title: 'In Progress', order: 1 },
+                { id: 'DONE', title: 'Done', order: 2 },
+            ],
+        },
+        labels: {
+            type: [{
+                id: { type: String, required: true },
+                name: { type: String, required: true },
+                color: { type: String, required: true },
+            }],
+            default: [],
+        }
     },
     {
         timestamps: true,

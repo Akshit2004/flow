@@ -1,0 +1,387 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(9, 30, 66, 0.54);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modal {
+    background: white;
+    width: 90%;
+    max-width: 1000px;
+    height: 85vh;
+    border-radius: 12px;
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.12),
+        0 4px 6px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 32px;
+    /* Removed border for cleaner look, might add back scroll indicator later */
+}
+
+.breadcrumbs {
+    font-size: 14px;
+    color: #5e6c84;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.actionButtons {
+    display: flex;
+    gap: 12px;
+}
+
+.iconButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    color: #42526e;
+    transition: background-color 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.iconButton:hover {
+    background-color: #ebecf0;
+    color: #172b4d;
+}
+
+.deleteButton:hover {
+    background-color: #ffebe6;
+    color: #de350b;
+}
+
+.content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.mainColumn {
+    flex: 1;
+    padding: 0 32px 32px 32px;
+    overflow-y: auto;
+    /* Scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: #dfe1e6 transparent;
+}
+
+/* Custom scrollbar for webkit */
+.mainColumn::-webkit-scrollbar {
+    width: 8px;
+}
+
+.mainColumn::-webkit-scrollbar-thumb {
+    background-color: #dfe1e6;
+    border-radius: 4px;
+}
+
+.sidebar {
+    width: 340px;
+    padding: 24px 32px;
+    overflow-y: auto;
+    border-left: 1px solid #ebecf0;
+    /* Moved border to sidebar left */
+}
+
+.titleSection {
+    margin-bottom: 24px;
+}
+
+.titleInput {
+    width: 100%;
+    font-size: 24px;
+    font-weight: 600;
+    color: #172b4d;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    padding: 8px 8px 8px 0;
+    /* Align left with text */
+    margin-left: -2px;
+    /* Compensate for border */
+    background: transparent;
+    transition: all 0.2s;
+    line-height: 1.25;
+}
+
+.titleInput:hover {
+    background-color: #ebecf0;
+    padding-left: 8px;
+    border-color: #ebecf0;
+}
+
+.titleInput:focus {
+    background-color: white;
+    border-color: #0052cc;
+    padding-left: 8px;
+    outline: none;
+}
+
+.section {
+    margin-bottom: 40px;
+}
+
+.sectionHeader {
+    font-size: 14px;
+    font-weight: 600;
+    color: #172b4d;
+    margin-bottom: 12px;
+}
+
+.descriptionInput {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: 1px solid transparent;
+    /* Hidden border by default */
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #172b4d;
+    resize: vertical;
+    background-color: transparent;
+    /* Seamless default */
+    transition: all 0.2s;
+}
+
+.descriptionInput:hover {
+    background-color: #ebecf0;
+}
+
+.descriptionInput:focus {
+    background-color: white;
+    outline: none;
+    border-color: #0052cc;
+    box-shadow: 0 0 0 1px #0052cc;
+}
+
+.descriptionInput::placeholder {
+    color: #6b778c;
+    font-style: italic;
+}
+
+/* Comments */
+.commentList {
+    margin-bottom: 24px;
+}
+
+.commentItem {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #0052cc;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.commentContent {
+    flex: 1;
+}
+
+.commentMeta {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.commentUser {
+    font-size: 14px;
+    font-weight: 600;
+    color: #172b4d;
+}
+
+.commentDate {
+    font-size: 12px;
+    color: #6b778c;
+}
+
+.commentText {
+    font-size: 14px;
+    color: #172b4d;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.commentInputWrapper {
+    display: flex;
+    gap: 12px;
+}
+
+.commentInputContainer {
+    flex: 1;
+    border: 1px solid #dfe1e6;
+    border-radius: 4px;
+    background: white;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.commentInputContainer:focus-within {
+    border-color: #0052cc;
+    box-shadow: 0 0 0 1px #0052cc;
+}
+
+.commentInput {
+    width: 100%;
+    border: none;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: none;
+    background: transparent;
+    outline: none;
+    min-height: 48px;
+}
+
+.commentActions {
+    padding: 8px 12px;
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid #ebecf0;
+}
+
+
+/* Sidebar Elements */
+.sidebarGroup {
+    margin-bottom: 24px;
+}
+
+.sidebarLabel {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #5e6c84;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.statusSelect {
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    background-color: #dfe1e6;
+    /* Default gray */
+    color: #172b4d;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    appearance: none;
+    text-transform: uppercase;
+    text-align: center;
+    transition: background-color 0.2s;
+}
+
+.statusSelect:hover {
+    filter: brightness(0.95);
+}
+
+/* Status Colors - classes applied in JSX maybe, or via style prop */
+/* Using generic class for now, style mapping happens in component */
+
+
+.metaList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.metaItem {
+    margin-bottom: 16px;
+}
+
+.metaValueControl {
+    padding: 6px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    cursor: pointer;
+    margin-left: -8px;
+    /* align with label visual start */
+    border: 1px solid transparent;
+}
+
+.metaValueControl:hover {
+    background-color: #ebecf0;
+}
+
+.selectNative {
+    width: 100%;
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    color: #172b4d;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    padding: 4px 0;
+}
+
+.dateInput {
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    color: #172b4d;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    width: 100%;
+}
+
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
