@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 export default function Home() {
   return (
-    <div className="landing-page" style={{ minHeight: '100vh', backgroundColor: '#FFFFFF', color: '#111827', fontFamily: 'var(--font-inter)' }}>
+    <div className="landing-page" style={{ minHeight: '100vh', backgroundColor: 'var(--background)', color: 'var(--text-main)', fontFamily: 'var(--font-inter)' }}>
       {/* Navbar with Glassmorphism */}
       <motion.nav 
         initial={{ y: -20, opacity: 0 }}
@@ -23,9 +23,9 @@ export default function Home() {
           position: 'sticky',
           top: 0,
           zIndex: 50,
-          background: 'rgba(255, 255, 255, 0.8)',
+          background: 'var(--navbar-bg)',
           backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(0,0,0,0.05)'
+          borderBottom: '1px solid var(--border)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '1.25rem' }}>
           <div style={{ 
@@ -72,7 +72,7 @@ export default function Home() {
             transform: 'translateX(-50%)', 
             width: '800px', 
             height: '800px', 
-            background: 'radial-gradient(circle, rgba(37,99,235,0.08) 0%, rgba(255,255,255,0) 70%)', 
+            background: 'radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 70%)', 
             zIndex: -1,
             pointerEvents: 'none'
         }} />
@@ -82,9 +82,9 @@ export default function Home() {
            animate={{ opacity: 1, y: 0 }}
            transition={{ delay: 0.1 }}
            style={{ 
-            backgroundColor: 'rgba(239, 246, 255, 0.6)', 
-            color: '#2563EB', 
-            border: '1px solid rgba(37, 99, 235, 0.1)',
+            backgroundColor: 'rgba(37, 99, 235, 0.1)', 
+            color: 'var(--primary)', 
+            border: '1px solid rgba(37, 99, 235, 0.2)',
             padding: '0.25rem 0.75rem', 
             borderRadius: '999px', 
             fontSize: '0.875rem', 
@@ -109,7 +109,7 @@ export default function Home() {
             letterSpacing: '-0.04em', 
             lineHeight: '1.05', 
             marginBottom: '1.5rem', 
-            color: '#111827'
+            color: 'var(--text-main)'
         }}>
           Linear flow. <br />
           <span style={{ 
@@ -125,7 +125,7 @@ export default function Home() {
             transition={{ delay: 0.3 }}
             style={{ 
             fontSize: '1.25rem', 
-            color: '#6B7280', 
+            color: 'var(--text-secondary)', 
             maxWidth: '580px', 
             marginBottom: '3rem', 
             lineHeight: '1.6' 
@@ -151,7 +151,7 @@ export default function Home() {
               Start building <ArrowRight size={18} style={{ marginLeft: '8px' }} />
             </Button>
           </Link>
-          <div style={{ fontSize: '0.875rem', color: '#6B7280', fontWeight: 500 }}>
+          <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
              No credit card required
           </div>
         </motion.div>
@@ -165,8 +165,8 @@ export default function Home() {
                 width: '100%', 
                 maxWidth: '900px', 
                 height: '400px', 
-                background: 'linear-gradient(180deg, #F9FAFB 0%, #FFFFFF 100%)', 
-                border: '1px solid #E5E7EB',
+                background: 'linear-gradient(180deg, var(--background) 0%, var(--surface) 100%)', 
+                border: '1px solid var(--border)',
                 borderRadius: '16px',
                 marginTop: '5rem',
                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.1)',
@@ -176,32 +176,32 @@ export default function Home() {
             }}
         >
             {/* Sidebar Mock */}
-            <div style={{ width: '200px', borderRight: '1px solid #F3F4F6', padding: '1.5rem' }}>
-                <div style={{ width: '80%', height: '12px', background: '#E5E7EB', borderRadius: '4px', marginBottom: '2rem' }} />
-                <div style={{ width: '100%', height: '8px', background: '#F3F4F6', borderRadius: '4px', marginBottom: '1rem' }} />
-                <div style={{ width: '100%', height: '8px', background: '#F3F4F6', borderRadius: '4px', marginBottom: '1rem' }} />
-                <div style={{ width: '60%', height: '8px', background: '#F3F4F6', borderRadius: '4px', marginBottom: '1rem' }} />
+            <div style={{ width: '200px', borderRight: '1px solid var(--border)', padding: '1.5rem' }}>
+                <div style={{ width: '80%', height: '12px', background: 'var(--border)', borderRadius: '4px', marginBottom: '2rem' }} />
+                <div style={{ width: '100%', height: '8px', background: 'var(--border-hover)', borderRadius: '4px', marginBottom: '1rem' }} />
+                <div style={{ width: '100%', height: '8px', background: 'var(--border-hover)', borderRadius: '4px', marginBottom: '1rem' }} />
+                <div style={{ width: '60%', height: '8px', background: 'var(--border-hover)', borderRadius: '4px', marginBottom: '1rem' }} />
             </div>
             {/* Board Mock */}
-            <div style={{ flex: 1, padding: '1.5rem', display: 'flex', gap: '1.5rem', backgroundColor: '#FAFAFA' }}>
+            <div style={{ flex: 1, padding: '1.5rem', display: 'flex', gap: '1.5rem', backgroundColor: 'var(--background)' }}>
                  {['To Do', 'In Progress', 'Done'].map((col, i) => (
                      <div key={col} style={{ flex: 1 }}>
-                         <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#9CA3AF', marginBottom: '1rem' }}>{col}</div>
+                         <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '1rem' }}>{col}</div>
                          <motion.div 
                             initial={{ y: 20, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.8 + (i * 0.1) }}
                             style={{ 
-                                background: 'white', 
+                                background: 'var(--surface)', 
                                 padding: '1rem', 
                                 borderRadius: '8px', 
                                 boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
                                 marginBottom: '0.75rem',
-                                border: '1px solid #E5E7EB'
+                                border: '1px solid var(--border)'
                             }}
                          >
-                            <div style={{ width: '70%', height: '8px', background: '#F3F4F6', borderRadius: '4px', marginBottom: '0.5rem' }} />
-                            <div style={{ width: '40%', height: '6px', background: '#F9FAFB', borderRadius: '4px' }} />
+                            <div style={{ width: '70%', height: '8px', background: 'var(--border)', borderRadius: '4px', marginBottom: '0.5rem' }} />
+                            <div style={{ width: '40%', height: '6px', background: 'var(--background)', borderRadius: '4px' }} />
                          </motion.div>
                          {i === 1 && (
                              <motion.div 
@@ -209,7 +209,7 @@ export default function Home() {
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 1 }}
                                 style={{ 
-                                    background: 'white', 
+                                    background: 'var(--surface)', 
                                     padding: '1rem', 
                                     borderRadius: '8px', 
                                     boxShadow: '0 4px 6px -1px rgba(37,99,235,0.1)',

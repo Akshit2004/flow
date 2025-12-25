@@ -20,7 +20,7 @@ export default async function ProjectPage({ params }: { params: Params }) {
     _id: id,
     $or: [
       { owner: session.userId },
-      { members: session.userId }
+      { "members.user": session.userId }
     ]
   }).lean();
 

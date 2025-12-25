@@ -36,6 +36,7 @@ export default function SettingsClient({ project, initialInvitations = [] }: Pro
 
     // Members State
     const [inviteEmail, setInviteEmail] = useState('');
+    const [inviteRole, setInviteRole] = useState('MEMBER');
 
     // Columns State
     const [columns, setColumns] = useState(project.columns || []);
@@ -57,7 +58,7 @@ export default function SettingsClient({ project, initialInvitations = [] }: Pro
     const handleAddMember = async () => {
         if (!inviteEmail) return;
         setLoading(true);
-        const res = await addProjectMember(project._id, inviteEmail);
+        const res = await addProjectMember(project._id, inviteEmail, inviteRole);
         setLoading(false);
         if (res.error) showToast(res.error, 'error');
         else {
@@ -237,6 +238,15 @@ export default function SettingsClient({ project, initialInvitations = [] }: Pro
                                         value={inviteEmail} onChange={e => setInviteEmail(e.target.value)}
                                         className={styles.input}
                                     />
+                                    <select
+                                        value={inviteRole}
+                                        onChange={e => setInviteRole(e.target.value)}
+                                        className={styles.input}
+                                        style={{ width: 'auto' }}
+                                    >
+                                        <option value="MEMBER">Member</option>
+                                        <option value="ADMIN">Admin</option>
+                                    </select>
                                     <Button onClick={handleAddMember} disabled={loading || !inviteEmail}>
                                         <Plus size={16} className="mr-2" /> Invite
                                     </Button>
@@ -254,6 +264,12 @@ export default function SettingsClient({ project, initialInvitations = [] }: Pro
                                                 </div>
                                                 {project.owner && project.owner._id === member._id && (
                                                      <span className={styles.badge}>OWNER</span>
+                                                 )}
+                                                 {project.owner?._id !== member._id && member.role === 'ADMIN' && (
+                                                     <span className={styles.badge} style={{ background: '#DCFCE7', color: '#166534' }}>ADMIN</span>
+                                                 )}
+                                                 {project.owner?._id !== member._id && member.role === 'MEMBER' && (
+                                                     <span className={styles.badge} style={{ background: '#F3F4F6', color: '#374151' }}>MEMBER</span>
                                                  )}
                                             </div>
                                             {(!project.owner || project.owner._id !== member._id) && (

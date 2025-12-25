@@ -40,7 +40,7 @@ export async function getTaskStats(): Promise<TaskStats> {
     const projects = await Project.find({
         $or: [
             { owner: session.userId },
-            { members: session.userId }
+            { "members.user": session.userId }
         ]
     }).select('_id columns').lean();
 
@@ -110,7 +110,7 @@ export async function getOverdueTasks(): Promise<OverdueTask[]> {
     const projects = await Project.find({
         $or: [
             { owner: session.userId },
-            { members: session.userId }
+            { "members.user": session.userId }
         ]
     }).select('_id name columns').lean();
 
@@ -165,7 +165,7 @@ export async function getCompletionTrend(days: number = 7): Promise<DailyComplet
     const projects = await Project.find({
         $or: [
             { owner: session.userId },
-            { members: session.userId }
+            { "members.user": session.userId }
         ]
     }).select('_id').lean();
 

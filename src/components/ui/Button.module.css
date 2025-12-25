@@ -54,7 +54,7 @@
 }
 
 .ghost:hover:not(:disabled) {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: var(--ghost-hover);
 }
 
 .danger {

@@ -18,7 +18,7 @@ export default async function DashboardLayout({
   const projects = await Project.find({
     $or: [
       { owner: session.userId },
-      { members: session.userId }
+      { "members.user": session.userId }
     ]
   })
     .select("name _id")
@@ -31,7 +31,7 @@ export default async function DashboardLayout({
 
   return (
     <div className={styles.container}>
-      <Sidebar projects={serializedProjects} user={{ name: "Akshit" }} />
+      <Sidebar projects={serializedProjects} user={{ name: session.userName, email: session.userEmail }} />
       <main className={styles.main}>{children}</main>
     </div>
   );

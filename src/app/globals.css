@@ -31,6 +31,22 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  --navbar-bg: rgba(255, 255, 255, 0.8);
+  --navbar-bg: rgba(255, 255, 255, 0.8);
+  --ghost-hover: rgba(0, 0, 0, 0.05);
+
+  --sidebar-bg: #F8F9FA;
+  --item-active-bg: #FFFFFF;
+  --column-bg: #F3F4F6;
+
+  /* Priority Badges */
+  --priority-low-bg: #ECFDF5;
+  --priority-low-text: #059669;
+  --priority-med-bg: #FEF3C7;
+  --priority-med-text: #D97706;
+  --priority-high-bg: #FEF2F2;
+  --priority-high-text: #DC2626;
 }
 
 /* Dark Mode */
@@ -61,6 +77,24 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+
+  --navbar-bg: rgba(15, 23, 42, 0.8);
+  --navbar-bg: rgba(15, 23, 42, 0.8);
+  --ghost-hover: rgba(255, 255, 255, 0.1);
+
+  --sidebar-bg: #0F172A;
+  /* Match background or use slightly lighter #111827 */
+  --item-active-bg: #1E293B;
+  /* Surface */
+  --column-bg: #1E293B;
+
+  /* Priority Badges (Dark) */
+  --priority-low-bg: rgba(5, 150, 105, 0.2);
+  --priority-low-text: #34D399;
+  --priority-med-bg: rgba(217, 119, 6, 0.2);
+  --priority-med-text: #FBBF24;
+  --priority-high-bg: rgba(220, 38, 38, 0.2);
+  --priority-high-text: #F87171;
 }
 
 * {

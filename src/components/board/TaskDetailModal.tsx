@@ -4,14 +4,11 @@ import { useState, useEffect } from 'react';
 import styles from './TaskDetailModal.module.css';
 import Button from '@/components/ui/Button';
 import CustomDropdown from '@/components/ui/CustomDropdown';
-import MentionInput from '@/components/ui/MentionInput';
 import { updateTaskDetails, getProjectUsers, addComment, deleteTask } from '@/actions/task';
 import { X, Calendar, User, Clock, CheckCircle, Trash2, Send, History, ListChecks } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 import ActivityFeed from './ActivityFeed';
 import SubtaskList from './SubtaskList';
-import { renderMentions } from '@/lib/mentions';
-import mentionStyles from '@/components/ui/MentionInput.module.css';
 
 interface Subtask {
   _id: string;
@@ -258,11 +255,10 @@ export default function TaskDetailModal({ task, columns = [], onClose, onUpdate,
                             <User size={16} />
                         </div>
                         <div className={styles.commentInputContainer}>
-                            <MentionInput
+                            <textarea
                                 value={newComment}
-                                onChange={setNewComment}
-                                users={users}
-                                placeholder="Add a comment... (use @ to mention)"
+                                onChange={(e) => setNewComment(e.target.value)}
+                                placeholder="Add a comment..."
                                 className={styles.commentInput}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && !e.shiftKey) {

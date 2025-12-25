@@ -5,6 +5,7 @@ export interface IInvitation extends Document {
     email: string;
     token: string;
     invitedBy: mongoose.Types.ObjectId;
+    role: 'ADMIN' | 'MEMBER';
     status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
     expiresAt: Date;
     createdAt: Date;
@@ -33,6 +34,11 @@ const InvitationSchema: Schema<IInvitation> = new Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true,
+        },
+        role: {
+            type: String,
+            enum: ['ADMIN', 'MEMBER'],
+            default: 'MEMBER',
         },
         status: {
             type: String,

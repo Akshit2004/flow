@@ -34,7 +34,7 @@ export async function createProject(prevState: ProjectState, formData: FormData)
             owner: session.userId,
             key,
             taskCount: 0,
-            members: [session.userId], // Add owner to members
+            members: [{ user: session.userId, role: 'ADMIN' }], // Add owner to members
         });
     } catch (error) {
         return { error: 'Failed to create project' };
@@ -56,7 +56,7 @@ export async function getProjects() {
     const projects = await Project.find({
         $or: [
             { owner: session.userId },
-            { members: session.userId }
+            { 'members.user': session.userId }
         ]
     })
         .sort({ createdAt: -1 })
@@ -69,8 +69,8 @@ export async function getProjects() {
         description: p.description,
         key: p.key,
         taskCount: p.taskCount,
-        owner: p.owner.toString(),
-        members: p.members.map((m: any) => m.toString()),
+        owner: p.owner ? p.owner.toString() : '',
+        members: p.members?.filter((m: any) => m.user).map((m: any) => m.user.toString()) || [],
         columns: p.columns?.map((c: any) => ({
             id: c.id,
             title: c.title,
@@ -97,10 +97,10 @@ export async function getProjectDetails(projectId: string) {
         _id: projectId,
         $or: [
             { owner: session.userId },
-            { members: session.userId }
+            { 'members.user': session.userId }
         ]
     })
-        .populate('members', 'name email avatar')
+        .populate('members.user', 'name email avatar')
         .populate('owner', 'name email avatar')
         .lean();
 
@@ -120,12 +120,17 @@ export async function getProjectDetails(projectId: string) {
                 avatar: (project.owner as any).avatar
             }
             : null,
-        members: project.members?.filter((m: any) => m && typeof m === 'object' && '_id' in m).map((m: any) => ({
-            _id: m._id.toString(),
-            name: m.name,
-            email: m.email,
-            avatar: m.avatar
-        })) || [],
+        members: project.members?.map((m: any) => {
+            const user = m.user;
+            if (!user || typeof user !== 'object' || !('_id' in user)) return null;
+            return {
+                _id: (user as any)._id.toString(),
+                name: (user as any).name,
+                email: (user as any).email,
+                avatar: (user as any).avatar,
+                role: m.role
+            };
+        }).filter((m: any) => m !== null) || [],
         columns: project.columns?.map((c: any) => ({
             id: c.id,
             title: c.title,
@@ -169,7 +174,7 @@ export async function removeProjectMember(projectId: string, userId: string) {
     await dbConnect();
     try {
         await Project.findByIdAndUpdate(projectId, {
-            $pull: { members: userId }
+            $pull: { members: { user: userId } }
         });
         revalidatePath(`/dashboard/project/${projectId}/settings`);
         return { success: true };

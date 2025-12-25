@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
-    background-color: #FAFAFA;
+    background-color: var(--background);
     position: relative;
     overflow: hidden;
 }
@@ -35,9 +35,9 @@
 .card {
     width: 100%;
     max-width: 380px;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: var(--surface);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(229, 231, 235, 0.6);
+    border: 1px solid var(--border);
     border-radius: 16px;
     padding: 2.5rem;
     box-shadow:
@@ -53,14 +53,14 @@
 .title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--text-main);
     margin-bottom: 0.5rem;
     text-align: center;
     letter-spacing: -0.02em;
 }
 
 .subtitle {
-    color: #6B7280;
+    color: var(--text-secondary);
     font-size: 0.875rem;
     text-align: center;
     margin-bottom: 2rem;
@@ -82,9 +82,9 @@
 
 .errorAlert {
     padding: 0.75rem;
-    background-color: #FEF2F2;
-    border: 1px solid #FECACA;
-    color: #991B1B;
+    background-color: var(--surface);
+    border: 1px solid var(--error);
+    color: var(--error);
     border-radius: 8px;
     font-size: 0.875rem;
     text-align: center;
@@ -95,17 +95,17 @@
     margin-top: 1.75rem;
     text-align: center;
     font-size: 0.875rem;
-    color: #6B7280;
+    color: var(--text-secondary);
 }
 
 .link {
-    color: #2563EB;
+    color: var(--primary);
     font-weight: 500;
     transition: color 0.15s;
 }
 
 .link:hover {
-    color: #1D4ED8;
+    color: var(--primary-hover);
     text-decoration: underline;
 }
 

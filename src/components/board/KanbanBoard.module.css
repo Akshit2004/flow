@@ -28,7 +28,7 @@
 .column {
     flex: 1;
     min-width: 250px;
-    background-color: #F3F4F6;
+    background-color: var(--column-bg);
     border-radius: var(--radius-lg);
     display: flex;
     flex-direction: column;

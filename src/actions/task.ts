@@ -90,7 +90,7 @@ export async function getTasks(projectId: string) {
         _id: projectId,
         $or: [
             { owner: session.userId },
-            { members: session.userId }
+            { "members.user": session.userId }
         ]
     });
 

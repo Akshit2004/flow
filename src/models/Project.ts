@@ -7,7 +7,7 @@ export interface IProject extends Document {
     owner: IUser; // Reference to User
     key: string;
     taskCount: number;
-    members: (IUser | mongoose.Types.ObjectId | string)[];
+    members: { user: IUser | mongoose.Types.ObjectId | string, role: 'ADMIN' | 'MEMBER' }[];
     columns: { id: string; title: string; order: number }[];
     labels: { id: string; name: string; color: string }[];
     createdAt: Date;
@@ -41,8 +41,15 @@ const ProjectSchema: Schema<IProject> = new Schema(
             required: true,
         },
         members: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+            },
+            role: {
+                type: String,
+                enum: ['ADMIN', 'MEMBER'],
+                default: 'MEMBER',
+            }
         }],
         columns: {
             type: [{

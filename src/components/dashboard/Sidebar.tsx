@@ -127,8 +127,8 @@ export default function Sidebar({ projects, user }: { projects: Project[]; user?
                         {user?.name?.[0] || 'U'}
                     </div>
                     <div className={styles.userInfo}>
-                        <p className={styles.userName}>User</p>
-                        <p className={styles.userEmail}>user@flow.app</p>
+                        <p className={styles.userName}>{user?.name || 'User'}</p>
+                        <p className={styles.userEmail}>{user?.email || 'user@flow.app'}</p>
                     </div>
                 </div>
                 <form action={logout}>

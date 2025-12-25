@@ -9,7 +9,7 @@ import { revalidatePath } from 'next/cache';
 import crypto from 'crypto';
 import { sendLiveInvitationEmail } from '@/lib/email';
 
-export async function addProjectMember(projectId: string, email: string) {
+export async function addProjectMember(projectId: string, email: string, role: string = 'MEMBER') {
     const session = await getSession();
     if (!session || !session.userId) return { error: 'Unauthorized' };
 
@@ -19,7 +19,7 @@ export async function addProjectMember(projectId: string, email: string) {
         if (!project) return { error: 'Project not found' };
 
         const invitedUser = await User.findOne({ email });
-        if (invitedUser && project.members.some((m: any) => m.toString() === invitedUser._id.toString())) {
+        if (invitedUser && project.members.some((m: any) => m.user.toString() === invitedUser._id.toString())) {
             return { error: 'User is already a project member' };
         }
 
@@ -35,10 +35,11 @@ export async function addProjectMember(projectId: string, email: string) {
             email,
             token,
             invitedBy: session.userId,
+            role,
             expiresAt,
         });
 
-        const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/invite/${token}`;
+        const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://flow-six-liart.vercel.app'}/invite/${token}`;
         await sendLiveInvitationEmail(email, project.name, inviteUrl, session.userName || 'Someone');
 
         revalidatePath(`/dashboard/project/${projectId}/settings`);
@@ -95,7 +96,7 @@ export async function acceptInvitation(token: string) {
         }
 
         await Project.findByIdAndUpdate(invite.project, {
-            $addToSet: { members: session.userId }
+            $addToSet: { members: { user: session.userId, role: invite.role } }
         });
 
         invite.status = 'ACCEPTED';

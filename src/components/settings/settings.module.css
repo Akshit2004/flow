@@ -1,0 +1,233 @@
+.card {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    transition: border-color 0.2s;
+}
+
+.card:hover {
+    border-color: var(--border-hover);
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.avatarLarge {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background-color: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: 600;
+}
+
+.profileInfo {
+    flex: 1;
+}
+
+.name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 0.25rem;
+}
+
+.email {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.fieldGroup {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+    .fieldGroup {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.themeOptions {
+    display: flex;
+    gap: 1rem;
+}
+
+.themeOption {
+    flex: 1;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    background-color: transparent;
+    color: var(--text-secondary);
+}
+
+.themeOption:hover {
+    background-color: var(--ghost-hover);
+    border-color: var(--text-muted);
+}
+
+.themeOption.active {
+    background-color: var(--ghost-hover);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.themeLabel {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.dangerZone {
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.dangerTitle {
+    color: var(--error);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.dangerDesc {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.cardTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-main);
+}
+
+.formStack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.actionRow {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+}
+
+.errorText {
+    color: var(--error);
+    font-size: 0.875rem;
+    margin-top: -0.5rem;
+}
+
+.successText {
+    color: var(--success);
+    font-size: 0.875rem;
+    margin-top: -0.5rem;
+}
+
+/* Notification Toggles */
+.notificationItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.notificationItem:last-child {
+    border-bottom: none;
+}
+
+.notificationInfo {
+    flex: 1;
+}
+
+.notificationHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+    color: var(--text-main);
+    font-weight: 500;
+}
+
+.notificationLabel {
+    font-size: 0.9375rem;
+}
+
+.notificationDesc {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin-left: 1.6rem;
+    /* Align with text start */
+}
+
+/* Switch Component */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--border);
+    /* OFF state */
+    transition: .3s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: var(--primary);
+}
+
+input:focus+.slider {
+    box-shadow: 0 0 1px var(--primary);
+}
+
+input:checked+.slider:before {
+    transform: translateX(20px);
+}
