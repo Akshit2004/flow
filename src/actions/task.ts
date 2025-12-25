@@ -186,6 +186,7 @@ export async function updateTaskDetails(taskId: string, updates: Partial<{
     status: TaskStatus;
     assignedTo: string;
     dueDate: string | Date | null;
+    labels: string[];
 }>) {
     const session = await getSession();
     if (!session) return { error: 'Unauthorized' };
@@ -213,6 +214,7 @@ export async function updateTaskDetails(taskId: string, updates: Partial<{
                 createdAt: plainTask.createdAt.toISOString(),
                 updatedAt: plainTask.updatedAt.toISOString(),
                 dueDate: plainTask.dueDate?.toISOString(),
+                labels: plainTask.labels || [],
                 comments: plainTask.comments?.map((c: any) => ({
                     ...c,
                     _id: c._id.toString(),
@@ -220,6 +222,10 @@ export async function updateTaskDetails(taskId: string, updates: Partial<{
                         ? { ...c.user, _id: (c.user as any)._id.toString() }
                         : c.user?.toString(),
                     createdAt: c.createdAt.toISOString()
+                })),
+                subtasks: plainTask.subtasks?.map((s: any) => ({
+                    ...s,
+                    _id: s._id.toString()
                 }))
             }
         };

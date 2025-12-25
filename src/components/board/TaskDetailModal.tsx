@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useRef } from 'react';
 import styles from './TaskDetailModal.module.css';
 import Button from '@/components/ui/Button';
 import CustomDropdown from '@/components/ui/CustomDropdown';
 import { updateTaskDetails, getProjectUsers, addComment, deleteTask } from '@/actions/task';
-import { X, Calendar, User, Clock, CheckCircle, Trash2, Send, History, ListChecks } from 'lucide-react';
+import { updateProjectLabels } from '@/actions/project';
+import { X, Calendar, User, Clock, CheckCircle, Trash2, ListChecks, Tag, Plus, Check } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 import ActivityFeed from './ActivityFeed';
 import SubtaskList from './SubtaskList';
@@ -29,6 +31,7 @@ interface Task {
   order: number;
   assignedTo?: { _id: string; name: string; avatar?: string } | string;
   dueDate?: string;
+  labels?: string[];
   ticketId?: string;
   subtasks?: Subtask[];
   comments?: { _id: string; text: string; user: { _id: string; name: string; avatar?: string } | string; createdAt: string }[];
@@ -37,6 +40,7 @@ interface Task {
 interface TaskDetailModalProps {
   task: Task;
   columns?: { id: string; title: string }[];
+  labels?: { id: string; name: string; color: string }[];
   onClose: () => void;
   onUpdate: (task: Task) => void;
   onDelete: (taskId: string) => void;
@@ -48,7 +52,7 @@ const PRIORITY_OPTIONS = [
     { label: 'High', value: 'HIGH', color: '#EF4444' },
 ];
 
-export default function TaskDetailModal({ task, columns = [], onClose, onUpdate, onDelete }: TaskDetailModalProps) {
+export default function TaskDetailModal({ task, columns = [], labels = [], onClose, onUpdate, onDelete }: TaskDetailModalProps) {
   const { confirmAction } = useToast();
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || '');
@@ -56,10 +60,26 @@ export default function TaskDetailModal({ task, columns = [], onClose, onUpdate,
   const [priority, setPriority] = useState(task.priority);
   const [assignedTo, setAssignedTo] = useState(typeof task.assignedTo === 'object' ? task.assignedTo?._id : task.assignedTo || '');
   const [dueDate, setDueDate] = useState(task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '');
+  const [selectedLabels, setSelectedLabels] = useState<string[]>(task.labels || []);
   const [newComment, setNewComment] = useState('');
   const [users, setUsers] = useState<{ _id: string; name: string }[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [subtasks, setSubtasks] = useState<Subtask[]>(task.subtasks || []);
+  const [menuOpenLabels, setMenuOpenLabels] = useState(false);
+  const [newLabelName, setNewLabelName] = useState('');
+  const [newLabelColor, setNewLabelColor] = useState('#EF4444');
+  const labelsMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close Labels menu on outside click
+  useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+          if (labelsMenuRef.current && !labelsMenuRef.current.contains(event.target as Node)) {
+              setMenuOpenLabels(false);
+          }
+      };
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
       getProjectUsers().then(setUsers);
@@ -87,7 +107,10 @@ export default function TaskDetailModal({ task, columns = [], onClose, onUpdate,
     status !== task.status || 
     priority !== task.priority || 
     assignedTo !== (typeof task.assignedTo === 'object' ? task.assignedTo?._id : task.assignedTo || '') ||
-    dueDate !== (task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '');
+    priority !== task.priority || 
+    assignedTo !== (typeof task.assignedTo === 'object' ? task.assignedTo?._id : task.assignedTo || '') ||
+    dueDate !== (task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '') ||
+    JSON.stringify(selectedLabels.sort()) !== JSON.stringify((task.labels || []).sort());
 
   const handleApplyChanges = async () => {
     if (!hasChanges) return;
@@ -99,7 +122,9 @@ export default function TaskDetailModal({ task, columns = [], onClose, onUpdate,
     if (status !== task.status) updates.status = status;
     if (priority !== task.priority) updates.priority = priority;
     if (assignedTo !== (typeof task.assignedTo === 'object' ? task.assignedTo?._id : task.assignedTo || '')) updates.assignedTo = assignedTo || null;
+    if (assignedTo !== (typeof task.assignedTo === 'object' ? task.assignedTo?._id : task.assignedTo || '')) updates.assignedTo = assignedTo || null;
     if (dueDate !== (task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '')) updates.dueDate = dueDate || null;
+    if (JSON.stringify(selectedLabels.sort()) !== JSON.stringify((task.labels || []).sort())) updates.labels = selectedLabels;
 
     const result = await updateTaskDetails(task._id, updates);
     setIsSaving(false);
@@ -150,6 +175,42 @@ export default function TaskDetailModal({ task, columns = [], onClose, onUpdate,
               onClose();
           }
       }
+  };
+
+  const handleToggleLabel = (labelId: string) => {
+      setSelectedLabels(prev => 
+          prev.includes(labelId) 
+              ? prev.filter(id => id !== labelId)
+              : [...prev, labelId]
+      );
+  };
+
+  const handleCreateLabel = async () => {
+      if (!newLabelName.trim()) return;
+      
+      const newId = newLabelName.toUpperCase().replace(/\s+/g, '_');
+      
+      // Random color
+      const colors = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#6366F1', '#8B5CF6', '#EC4899', '#6B7280'];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      
+      const newLabel = { id: newId, name: newLabelName, color: randomColor };
+      
+      // Optimistically update
+      // We need to update project labels via server action
+      // In a real app we'd need the project ID here
+      if (!task.project) return;
+      
+      const projectId = typeof task.project === 'object' ? (task.project as any)._id : task.project;
+      const updatedLabels = [...labels, newLabel];
+      
+      await updateProjectLabels(projectId, updatedLabels);
+      
+      setNewLabelName('');
+      // Keep menu open for multiple additions or close? 
+      // User simplified flow suggests quick add, so maybe keep open or clear input.
+      // Let's clear input and select it.
+      handleToggleLabel(newId);
   };
 
   return (
@@ -297,6 +358,110 @@ export default function TaskDetailModal({ task, columns = [], onClose, onUpdate,
                         value={priority}
                         onChange={handlePriorityChange}
                     />
+                </div>
+
+                <div className={styles.sidebarGroup}>
+                    <div className={styles.sectionHeader} style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>Labels</span>
+                        <button 
+                            className={styles.iconButton} 
+                            onClick={() => setMenuOpenLabels(!menuOpenLabels)}
+                            style={{ width: '24px', height: '24px', padding: 0 }}
+                        >
+                            <Plus size={14} />
+                        </button>
+                    </div>
+                    
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px', alignItems: 'center' }}>
+                        {selectedLabels.map(labelId => {
+                            const label = labels.find(l => l.id === labelId);
+                            if (!label) return null;
+                            return (
+                                <div key={labelId} style={{ 
+                                    backgroundColor: label.color + '20', 
+                                    color: label.color,
+                                    border: `1px solid ${label.color}`,
+                                    padding: '2px 8px',
+                                    borderRadius: '12px',
+                                    fontSize: '12px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px'
+                                }}>
+                                    {label.name}
+                                    <X size={12} style={{ cursor: 'pointer' }} onClick={() => handleToggleLabel(labelId)} />
+                                </div>
+                            );
+                        })}
+                        
+                        {/* Inline Input or Add Button */}
+                        {menuOpenLabels ? (
+                            <input
+                                autoFocus
+                                value={newLabelName}
+                                onChange={(e) => setNewLabelName(e.target.value)}
+                                onBlur={() => {
+                                    // Delay closing to allow clicking suggestions if we added them, 
+                                    // but for now just close if empty or keep open? 
+                                    // Better UX: if empty, close.
+                                    if (!newLabelName.trim()) setMenuOpenLabels(false);
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleCreateLabel();
+                                    } else if (e.key === 'Escape') {
+                                        setMenuOpenLabels(false);
+                                        setNewLabelName('');
+                                    }
+                                }}
+                                placeholder="Type label..."
+                                style={{
+                                    fontSize: '12px',
+                                    padding: '2px 8px',
+                                    borderRadius: '12px',
+                                    border: '1px solid var(--primary)',
+                                    outline: 'none',
+                                    minWidth: '60px',
+                                    width: '100px' // explicit width
+                                }}
+                            />
+                        ) : (
+                            <button 
+                                className={styles.iconButton} 
+                                onClick={() => setMenuOpenLabels(true)}
+                                style={{ width: '24px', height: '24px', padding: 0, borderRadius: '50%', border: '1px dashed #9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                title="Add Label"
+                            >
+                                <Plus size={14} color="#6b7280" />
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Simple Suggestions (Optional: Only show if typing matches something NOT selected) */}
+                    {menuOpenLabels && newLabelName.trim() && (
+                        <div style={{ position: 'absolute', zIndex: 10,  backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '4px', marginTop: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                            {labels
+                                .filter(l => l.name.toLowerCase().includes(newLabelName.toLowerCase()) && !selectedLabels.includes(l.id))
+                                .map(l => (
+                                    <div 
+                                        key={l.id}
+                                        onMouseDown={(e) => {
+                                            e.preventDefault(); // Prevent blur
+                                            handleToggleLabel(l.id);
+                                            setNewLabelName('');
+                                            // Keep input open for more?
+                                        }}
+                                        style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        className="hover:bg-gray-50"
+                                    >
+                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: l.color }}></div>
+                                        {l.name}
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    )}
                 </div>
 
                 <div className={styles.sidebarGroup} style={{ border: 'none', background: 'transparent', padding: 0 }}>

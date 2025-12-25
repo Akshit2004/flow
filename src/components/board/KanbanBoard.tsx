@@ -49,11 +49,13 @@ const DEFAULT_COLUMNS = [
 export default function KanbanBoard({ 
     projectId, 
     initialTasks, 
-    columns = DEFAULT_COLUMNS 
+    columns = DEFAULT_COLUMNS,
+    labels = []
 }: { 
     projectId: string; 
     initialTasks: Task[]; 
-    columns?: { id: string; title: string }[] 
+    columns?: { id: string; title: string }[];
+    labels?: { id: string; name: string; color: string }[];
 }) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -230,6 +232,7 @@ export default function KanbanBoard({
         <TaskDetailModal
             task={selectedTask}
             columns={localColumns}
+            labels={labels}
             onClose={() => setSelectedTask(null)}
             onUpdate={handleTaskUpdate}
             onDelete={handleDeleteTask}

@@ -52,6 +52,12 @@ export default async function ProjectPage({ params }: { params: Params }) {
             order: c.order,
             _id: c._id ? c._id.toString() : undefined 
         }))} 
+        labels={project.labels?.map((l: any) => ({
+            id: l.id,
+            name: l.name,
+            color: l.color,
+            _id: l._id ? l._id.toString() : undefined
+        })) || []}
       />
     </div>
   );

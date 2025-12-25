@@ -31,9 +31,10 @@ interface ProjectViewProps {
     projectId: string;
     initialTasks: Task[];
     columns: Column[];
+    labels?: { id: string; name: string; color: string }[];
 }
 
-export default function ProjectView({ projectId, initialTasks, columns }: ProjectViewProps) {
+export default function ProjectView({ projectId, initialTasks, columns, labels = [] }: ProjectViewProps) {
     const [activeTab, setActiveTab] = useState<'board' | 'analytics'>('board');
 
     return (
@@ -50,6 +51,7 @@ export default function ProjectView({ projectId, initialTasks, columns }: Projec
                         projectId={projectId} 
                         initialTasks={initialTasks} 
                         columns={columns} 
+                        labels={labels}
                     />
                 ) : (
                     <ProjectAnalytics projectId={projectId} />
