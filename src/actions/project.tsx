@@ -6,6 +6,7 @@ import User from '@/models/User';
 import Task from '@/models/Task';
 import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
+import mongoose from 'mongoose';
 export interface ProjectState {
     error?: string;
     success?: boolean;
@@ -34,7 +35,7 @@ export async function createProject(prevState: ProjectState, formData: FormData)
             owner: session.userId,
             key,
             taskCount: 0,
-            members: [{ user: session.userId, role: 'ADMIN' }], // Add owner to members
+            members: [{ user: new mongoose.Types.ObjectId(session.userId), role: 'ADMIN' }], // Add owner to members
         });
     } catch (error) {
         return { error: 'Failed to create project' };

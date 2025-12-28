@@ -7,14 +7,14 @@ import {
     updateProjectDetails, 
     removeProjectMember, 
     updateProjectColumns,
-    updateProjectLabels,
     deleteProject
 } from '@/actions/project';
 import { addProjectMember, revokeInvitation } from '@/actions/invite';
 import Button from '@/components/ui/Button';
-import { ArrowLeft, Trash2, Plus, X, Save, User as UserIcon, Tag, Columns, Mail } from 'lucide-react';
+import { ArrowLeft, Trash2, Plus, X, Save, User as UserIcon, Columns, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/components/ui/Toast';
+import Image from 'next/image';
 
 interface ProjectSettingsProps {
     project: any;
@@ -42,10 +42,7 @@ export default function SettingsClient({ project, initialInvitations = [] }: Pro
     const [columns, setColumns] = useState(project.columns || []);
     const [newColTitle, setNewColTitle] = useState('');
 
-     // Labels State
-     const [labels, setLabels] = useState(project.labels || []);
-     const [newLabelName, setNewLabelName] = useState('');
-     const [newLabelColor, setNewLabelColor] = useState('#2563EB');
+
 
     const handleUpdateDetails = async () => {
         setLoading(true);
@@ -114,13 +111,7 @@ export default function SettingsClient({ project, initialInvitations = [] }: Pro
         else showToast('Columns updated successfully!', 'success');
     };
 
-    const handleUpdateLabels = async () => {
-        setLoading(true);
-        const res = await updateProjectLabels(project._id, labels);
-        setLoading(false);
-        if (res.error) showToast(res.error, 'error');
-        else showToast('Labels updated successfully!', 'success');
-    };
+
 
     const handleDeleteProject = async () => {
         const confirmName = prompt(`To confirm, type "${project.name}"`);
@@ -158,7 +149,6 @@ export default function SettingsClient({ project, initialInvitations = [] }: Pro
                         { id: 'general', label: 'General', icon: Save },
                         { id: 'members', label: 'Team Members', icon: UserIcon },
                         { id: 'columns', label: 'Columns', icon: Columns },
-                        { id: 'labels', label: 'Labels', icon: Tag },
                         { id: 'danger', label: 'Danger Zone', icon: Trash2, danger: true }
                     ].map(item => (
                         <button
@@ -256,7 +246,7 @@ export default function SettingsClient({ project, initialInvitations = [] }: Pro
                                         <div key={member._id} className={styles.memberItem}>
                                             <div className={styles.memberInfo}>
                                                 <div className={styles.avatar}>
-                                                    {member.avatar ? <img src={member.avatar} alt={member.name} style={{ width: '100%', height: '100%', borderRadius: '50%' }} /> : member.name[0]}
+                                                    {member.avatar ? <Image src={member.avatar} alt={member.name} width={40} height={40} unoptimized style={{ borderRadius: '50%', objectFit: 'cover' }} /> : member.name[0]}
                                                 </div>
                                                 <div>
                                                     <div className={styles.memberName}>{member.name}</div>
@@ -371,50 +361,7 @@ export default function SettingsClient({ project, initialInvitations = [] }: Pro
                         </div>
                     )}
 
-                    {/* Labels Section */}
-                    {activeTab === 'labels' && (
-                         <div className={styles.card}>
-                            <div className={styles.cardHeader}>
-                                <h2 className={styles.cardTitle}>Task Labels</h2>
-                                <p className={styles.cardDescription}>Categorize tasks with color-coded tags.</p>
-                            </div>
-                            <div className={styles.cardBody}>
-                                <div className={styles.labelsContainer}>
-                                    {labels.map((label: any, idx: number) => (
-                                         <div key={idx} className={styles.labelTag} style={{ backgroundColor: label.color + '20', color: label.color, borderColor: label.color + '40' }}>
-                                            <span>{label.name}</span>
-                                            <button onClick={() => setLabels(labels.filter((_: any, i: number) => i !== idx))} style={{ color: 'inherit' }}><X size={12} /></button>
-                                         </div>
-                                    ))}
-                                    {labels.length === 0 && <div className={styles.helperText}>No labels created yet.</div>}
-                                </div>
-                                <div className={styles.inviteRow}>
-                                    <div className={styles.colorPickerWrapper}>
-                                        <input 
-                                            type="color" 
-                                            value={newLabelColor}
-                                            onChange={e => setNewLabelColor(e.target.value)}
-                                            className={styles.colorInput}
-                                        />
-                                    </div>
-                                    <input 
-                                        placeholder="Label Name (e.g. Bug)"
-                                        value={newLabelName} onChange={e => setNewLabelName(e.target.value)}
-                                        className={styles.input}
-                                    />
-                                    <Button onClick={() => {
-                                        if (newLabelName) {
-                                            setLabels([...labels, { id: crypto.randomUUID(), name: newLabelName, color: newLabelColor }]);
-                                            setNewLabelName('');
-                                        }
-                                    }} variant="secondary">Add Label</Button>
-                                </div>
-                                 <div className={styles.actions}>
-                                     <Button onClick={handleUpdateLabels} disabled={loading}>Save Labels</Button>
-                                </div>
-                            </div>
-                         </div>
-                    )}
+
 
                     {/* Danger Zone */}
                     {activeTab === 'danger' && (

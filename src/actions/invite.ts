@@ -8,6 +8,7 @@ import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import crypto from 'crypto';
 import { sendLiveInvitationEmail } from '@/lib/email';
+import mongoose from 'mongoose';
 
 export async function addProjectMember(projectId: string, email: string, role: string = 'MEMBER') {
     const session = await getSession();
@@ -96,7 +97,7 @@ export async function acceptInvitation(token: string) {
         }
 
         await Project.findByIdAndUpdate(invite.project, {
-            $addToSet: { members: { user: session.userId, role: invite.role } }
+            $addToSet: { members: { user: new mongoose.Types.ObjectId(session.userId), role: invite.role } }
         });
 
         invite.status = 'ACCEPTED';

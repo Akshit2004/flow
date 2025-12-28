@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { Home, FileQuestion, Compass, Map, Search } from "lucide-react";
 import Button from "@/components/ui/Button";
 
 export default function NotFound() {
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
@@ -17,7 +17,7 @@ export default function NotFound() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
       opacity: 1, 
@@ -26,7 +26,7 @@ export default function NotFound() {
     }
   };
 
-  const floatVariants = (delay: number) => ({
+  const floatVariants = (delay: number): Variants => ({
     animate: {
       y: [0, -20, 0],
       rotate: [0, 5, -5, 0],
@@ -112,7 +112,7 @@ export default function NotFound() {
             Lost in the Flow?
           </h2>
           <p className="text-lg text-[var(--text-secondary)]">
-            It looks like this page has gone off-grid. Let's get you back on track to your projects.
+            It looks like this page has gone off-grid. Let&apos;s get you back on track to your projects.
           </p>
         </motion.div>
 
