@@ -1,68 +1,132 @@
 "use client";
 
 import Link from "next/link";
-import Button from "@/components/ui/Button";
-import { Home, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
+import { Home, FileQuestion, Compass, Map, Search } from "lucide-react";
+import Button from "@/components/ui/Button";
 
 export default function NotFound() {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
+
+  const floatVariants = (delay: number) => ({
+    animate: {
+      y: [0, -20, 0],
+      rotate: [0, 5, -5, 0],
+      transition: {
+        duration: 5,
+        repeat: Infinity,
+        repeatType: "reverse" as const, // Cast to specific string literal type
+        ease: "easeInOut",
+        delay: delay
+      }
+    }
+  });
+
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 relative overflow-hidden bg-gray-900" 
-         style={{ fontFamily: 'var(--font-inter)' }}>
-      {/* Background Gradients */}
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--background)] px-4">
+      {/* Background Pattern */}
+      <div 
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: "radial-gradient(circle at 1px 1px, var(--text-main) 1px, transparent 0)",
+          backgroundSize: "40px 40px"
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Floating Background Icons */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px]" />
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03]" style={{ backgroundSize: '30px 30px' }} />
+        <motion.div 
+          className="absolute left-[15%] top-[20%] text-[var(--primary)] opacity-10"
+          variants={floatVariants(0)}
+          animate="animate"
+        >
+          <Compass size={120} />
+        </motion.div>
+        
+        <motion.div 
+          className="absolute right-[15%] top-[25%] text-[var(--success)] opacity-10"
+          variants={floatVariants(2)}
+          animate="animate"
+        >
+          <Map size={100} />
+        </motion.div>
+
+        <motion.div 
+          className="absolute left-[20%] bottom-[20%] text-[var(--warning)] opacity-10"
+          variants={floatVariants(4)}
+          animate="animate"
+        >
+          <FileQuestion size={90} />
+        </motion.div>
+
+        <motion.div 
+          className="absolute right-[20%] bottom-[25%] text-[var(--info)] opacity-10"
+          variants={floatVariants(1)}
+          animate="animate"
+        >
+          <Search size={110} />
+        </motion.div>
       </div>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="relative z-10 flex flex-col items-center text-center max-w-lg mx-auto"
+      {/* Main Content */}
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="relative z-10 flex max-w-lg flex-col items-center text-center"
       >
-        <div className="relative mb-8 group">
-            <motion.div 
-              initial={{ scale: 0.8, rotate: -10 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 200, damping: 15 }}
-              className="w-24 h-24 rounded-3xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center border border-gray-700 shadow-2xl shadow-blue-900/20 group-hover:scale-105 transition-transform duration-300"
-            >
-                <AlertTriangle size={40} className="text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
-            </motion.div>
-            
-            {/* Floating particles suggestion */}
-            <motion.div 
-                animate={{ y: [-10, 10, -10] }} 
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -top-4 -right-4 w-8 h-8 rounded-full bg-blue-500/20 blur-xl" 
-            />
-        </div>
-        
-        <h1 className="text-8xl md:text-9xl font-black mb-4 tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-600">
+        <motion.h1 
+          variants={itemVariants}
+          className="mb-2 text-8xl font-black tracking-tighter sm:text-9xl"
+          style={{
+            background: "linear-gradient(135deg, var(--primary) 0%, var(--info) 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}
+        >
           404
-        </h1>
+        </motion.h1>
         
-        <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-100">
-          Page not found
-        </h2>
-        
-        <p className="text-lg text-gray-400 mb-10 leading-relaxed max-w-md">
-          The page you are looking for doesn&apos;t exist or is currently under construction.
-        </p>
+        <motion.div variants={itemVariants} className="space-y-4">
+          <h2 className="text-2xl font-bold text-[var(--text-main)] sm:text-3xl">
+            Lost in the Flow?
+          </h2>
+          <p className="text-lg text-[var(--text-secondary)]">
+            It looks like this page has gone off-grid. Let's get you back on track to your projects.
+          </p>
+        </motion.div>
 
-        <Link href="/">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Button size="lg" className="h-14 px-10 rounded-full text-lg font-medium shadow-lg shadow-blue-600/25 border border-blue-500/50 bg-blue-600 hover:bg-blue-500 text-white transition-all">
-              <Home size={20} className="mr-2" />
-              Return Home
+        <motion.div 
+          variants={itemVariants}
+          className="mt-10"
+        >
+          <Link href="/">
+            <Button size="lg" className="rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+              <Home size={20} />
+              Return to Dashboard
             </Button>
-          </motion.div>
-        </Link>
+          </Link>
+        </motion.div>
       </motion.div>
     </div>
   );
