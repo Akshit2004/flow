@@ -1,12 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { updateSession } from '@/lib/auth';
+import { updateSession, decrypt } from '@/lib/auth';
 
 export async function middleware(request: NextRequest) {
-    // Update session expiry if exists
-    const response = await updateSession(request);
-    const res = response || NextResponse.next();
-
     const session = request.cookies.get('session')?.value;
     const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/signup');
     const isDashboard = request.nextUrl.pathname.startsWith('/dashboard');
@@ -16,10 +12,17 @@ export async function middleware(request: NextRequest) {
     }
 
     if (isAuthPage && session) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
+        // Validate session before redirecting
+        try {
+            await decrypt(session);
+            return NextResponse.redirect(new URL('/dashboard', request.url));
+        } catch {
+            // Invalid session - allow access to auth page, but effectively they will be logged out eventually
+        }
     }
 
-    return res;
+    // Update session expiry if exists
+    return await updateSession(request);
 }
 
 export const config = {
