@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import { Menu, X, Layout, Settings, LogOut, Plus, ChevronDown, ChevronRight, Folder } from "lucide-react";
 import { logout } from "@/actions/auth";
 import Button from "@/components/ui/Button";
@@ -39,7 +40,7 @@ export default function Sidebar({ projects, user }: { projects: Project[]; user?
       <aside className={clsx(styles.sidebar, { [styles.open]: isOpen })}>
         <div className={styles.sidebarHeader}>
           <div className={styles.brandContainer}>
-             <div className={styles.logoBox}>F</div>
+             <Image src="/logo.svg" alt="F" width={32} height={32} />
              <span className={styles.sidebarBrand}>Flow</span>
           </div>
           <button onClick={toggleSidebar} className={styles.closeButton}>

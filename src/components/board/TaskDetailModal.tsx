@@ -82,8 +82,15 @@ export default function TaskDetailModal({ task, columns = [], labels = [], onClo
   }, []);
 
   useEffect(() => {
-      getProjectUsers().then(setUsers);
-  }, []);
+    // Determine the project ID
+    const projectId = typeof task.project === 'object' 
+        ? (task.project as any)._id 
+        : task.project;
+        
+    if (projectId) {
+        getProjectUsers(projectId).then(setUsers);
+    }
+  }, [task.project]);
 
   // Map columns to options
   const statusOptions = columns.map(c => ({

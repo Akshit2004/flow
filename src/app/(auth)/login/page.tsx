@@ -5,6 +5,7 @@ import { login } from "@/actions/auth";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Link from "next/link";
+import Image from "next/image";
 import styles from "./auth.module.css";
 
 const initialState = {
@@ -18,6 +19,9 @@ export default function LoginPage() {
     <div className={styles.wrapper}>
       <div className={styles.card}>
         <div className={styles.header}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+            <Image src="/logo.svg" alt="Flow" width={48} height={48} />
+          </div>
           <h1 className={styles.title}>Welcome back</h1>
           <p className={styles.subtitle}>Sign in to your account</p>
         </div>

@@ -28,32 +28,44 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        // Check localStorage for saved preference
+        setMounted(true);
+        // Initial load
         const savedTheme = localStorage.getItem('flow-theme') as Theme | null;
         if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
             setTheme(savedTheme);
+            document.documentElement.setAttribute('data-theme', savedTheme);
         } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
             setTheme('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
         }
-        setMounted(true);
+
+        // Listen for changes in other tabs
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === 'flow-theme' && e.newValue) {
+                const newTheme = e.newValue as Theme;
+                if (newTheme === 'light' || newTheme === 'dark') {
+                    setTheme(newTheme);
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                }
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
 
-    useEffect(() => {
-        if (mounted) {
-            document.documentElement.setAttribute('data-theme', theme);
-            localStorage.setItem('flow-theme', theme);
-        }
-    }, [theme, mounted]);
-
     const toggleTheme = () => {
-        setTheme(prev => prev === 'light' ? 'dark' : 'light');
+        const newTheme = theme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('flow-theme', newTheme);
+        
+        // Dispatch a storage event manually for the current tab (storage event only fires for other tabs)
+        // actually we don't need to dispatch for current tab as we just set state, 
+        // but if we had other components relying on storage event in same tab (unlikely)
     };
 
-    // Prevent flash of wrong theme
-    if (!mounted) {
-        return null;
-    }
-
+    // We render children immediately to avoid blocking, but we suppress hydration warning in layout
     return (
         <ThemeContext.Provider value={{ theme, toggleTheme }}>
             {children}

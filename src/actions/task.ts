@@ -136,15 +136,49 @@ export async function getTasks(projectId: string) {
     }));
 }
 
-export async function getProjectUsers() {
-    // Temporary: fetch all users until project membership is real
-    // In a real app we'd filter by project.
+export async function getProjectUsers(projectId: string) {
     const session = await getSession();
     if (!session) return [];
 
     await dbConnect();
-    const users = await User.find({}).select('name email avatar').lean();
-    return users.map(u => ({ ...u, _id: u._id.toString() }));
+
+    // Find the project and get its members
+    const project = await Project.findById(projectId)
+        .populate('owner', 'name email avatar')
+        .populate('members.user', 'name email avatar')
+        .lean();
+
+    if (!project) return [];
+
+    const usersMap = new Map<string, any>();
+
+    // Add owner
+    if (project.owner && typeof project.owner === 'object') {
+        const owner = project.owner as any;
+        usersMap.set(owner._id.toString(), {
+            _id: owner._id.toString(),
+            name: owner.name,
+            email: owner.email,
+            avatar: owner.avatar
+        });
+    }
+
+    // Add members
+    if (project.members) {
+        project.members.forEach((member: any) => {
+            if (member.user && typeof member.user === 'object') {
+                const user = member.user as any;
+                usersMap.set(user._id.toString(), {
+                    _id: user._id.toString(),
+                    name: user.name,
+                    email: user.email,
+                    avatar: user.avatar
+                });
+            }
+        });
+    }
+
+    return Array.from(usersMap.values());
 }
 
 export async function updateTaskStatus(taskId: string, newStatus: TaskStatus, newOrder: number) {

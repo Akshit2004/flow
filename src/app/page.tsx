@@ -4,6 +4,7 @@ import Button from "@/components/ui/Button";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Layout, Zap, Star } from "lucide-react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -28,18 +29,7 @@ export default function Home() {
           borderBottom: '1px solid var(--border)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '1.25rem' }}>
-          <div style={{ 
-              width: '24px', 
-              height: '24px', 
-              background: 'linear-gradient(135deg, #2563EB, #4F46E5)', 
-              borderRadius: '6px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              color: 'white',
-              fontSize: '14px',
-              boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.3)'
-          }}>F</div>
+          <Image src="/logo.svg" alt="F" width={32} height={32} />
           Flow
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
