@@ -15,7 +15,7 @@ interface MongooseCache {
 
 // Global augmentation to add mongoose to global scope
 declare global {
-    // eslint-disable-next-line no-var
+
     var mongoose: MongooseCache;
 }
 
