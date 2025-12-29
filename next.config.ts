@@ -4,4 +4,9 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['mongoose', 'jose', 'bcryptjs', 'nodemailer'],
 };
 
-export default nextConfig;
+const withSerwist = require("@serwist/next").default({
+  swSrc: "src/app/sw.ts",
+  swDest: "public/sw.js",
+});
+
+export default withSerwist(nextConfig);
