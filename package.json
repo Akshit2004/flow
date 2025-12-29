@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint"
   },
   "dependencies": {
     "@upstash/ratelimit": "^2.0.7",
@@ -29,6 +29,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
     "@serwist/build": "^9.4.2",
     "@serwist/next": "^9.4.2",
     "@tailwindcss/postcss": "^4.1.18",
