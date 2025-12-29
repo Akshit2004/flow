@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { getTaskStats, getOverdueTasks, getCompletionTrend, TaskStats, OverdueTask, DailyCompletion } from '@/actions/analytics';
+import { getTaskStats, getOverdueTasks, getCompletionTrend, getProjectTaskStats, TaskStats, OverdueTask, DailyCompletion, ProjectTaskStats } from '@/actions/analytics';
 import { CheckCircle, Clock, AlertTriangle, LayoutList, Loader2, TrendingUp, Download, Share2, Printer, Copy, Check } from 'lucide-react';
 import styles from './ProjectAnalytics.module.css';
 
@@ -53,6 +53,7 @@ function generateReportCSV(stats: TaskStats, overdueTasks: OverdueTask[], comple
 
 export default function ProjectAnalytics({ projectId }: ProjectAnalyticsProps) {
     const [stats, setStats] = useState<TaskStats | null>(null);
+    const [projectStats, setProjectStats] = useState<ProjectTaskStats | null>(null);
     const [overdueTasks, setOverdueTasks] = useState<OverdueTask[]>([]);
     const [completionTrend, setCompletionTrend] = useState<DailyCompletion[]>([]);
     const [loading, setLoading] = useState(true);
@@ -62,14 +63,16 @@ export default function ProjectAnalytics({ projectId }: ProjectAnalyticsProps) {
         async function fetchData() {
             setLoading(true);
             try {
-                const [statsData, overdueData, trendData] = await Promise.all([
+                const [statsData, overdueData, trendData, projectStatsData] = await Promise.all([
                     getTaskStats(),
                     getOverdueTasks(),
-                    getCompletionTrend(7)
+                    getCompletionTrend(7),
+                    getProjectTaskStats(projectId)
                 ]);
                 setStats(statsData);
                 setOverdueTasks(overdueData.filter(t => t.projectId === projectId));
                 setCompletionTrend(trendData);
+                setProjectStats(projectStatsData);
             } catch (err) {
                 console.error('Failed to fetch analytics:', err);
             } finally {
@@ -119,10 +122,6 @@ export default function ProjectAnalytics({ projectId }: ProjectAnalyticsProps) {
     if (!stats) return null;
 
     const maxTrend = Math.max(...completionTrend.map(d => d.count), 1);
-    const completionPercent = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
-    const inProgressPercent = stats.total > 0 ? Math.round((stats.inProgress / stats.total) * 100) : 0;
-    const overduePercent = stats.total > 0 ? Math.round((stats.overdue / stats.total) * 100) : 0;
-    const todoPercent = 100 - completionPercent - inProgressPercent - overduePercent;
 
     return (
         <div className={styles.container}>
@@ -154,61 +153,57 @@ export default function ProjectAnalytics({ projectId }: ProjectAnalyticsProps) {
                         <svg viewBox="0 0 100 100" className={styles.donut}>
                             {/* Background circle */}
                             <circle cx="50" cy="50" r="40" fill="none" stroke="var(--border)" strokeWidth="12" />
-                            {/* Completed segment */}
-                            <circle 
-                                cx="50" cy="50" r="40" 
-                                fill="none" 
-                                stroke="var(--success)" 
-                                strokeWidth="12"
-                                strokeDasharray={`${completionPercent * 2.51} 251`}
-                                strokeDashoffset="0"
-                                transform="rotate(-90 50 50)"
-                            />
-                            {/* In Progress segment */}
-                            <circle 
-                                cx="50" cy="50" r="40" 
-                                fill="none" 
-                                stroke="var(--info)" 
-                                strokeWidth="12"
-                                strokeDasharray={`${inProgressPercent * 2.51} 251`}
-                                strokeDashoffset={`-${completionPercent * 2.51}`}
-                                transform="rotate(-90 50 50)"
-                            />
-                            {/* Overdue segment */}
-                            <circle 
-                                cx="50" cy="50" r="40" 
-                                fill="none" 
-                                stroke="var(--error)" 
-                                strokeWidth="12"
-                                strokeDasharray={`${overduePercent * 2.51} 251`}
-                                strokeDashoffset={`-${(completionPercent + inProgressPercent) * 2.51}`}
-                                transform="rotate(-90 50 50)"
-                            />
+                            
+                            {projectStats && projectStats.columns.map((col, index) => {
+                                const count = col.count;
+                                const total = projectStats.total;
+                                if (total === 0 || count === 0) return null;
+
+                                const percentage = (count / total) * 100;
+                                const dashArray = `${percentage * 2.51} 251`; // 2 * PI * 40 ≈ 251
+                                
+                                // Calculate offset based on previous segments
+                                const prevCount = projectStats.columns.slice(0, index).reduce((acc, c) => acc + c.count, 0);
+                                const prevPercentage = (prevCount / total) * 100;
+                                const dashOffset = -(prevPercentage * 2.51);
+                                
+                                // Colors - cycle through a palette
+                                const colors = ['var(--success)', 'var(--info)', 'var(--warning)', 'var(--error)', '#8B5CF6', '#EC4899', '#10B981'];
+                                const color = colors[index % colors.length];
+
+                                return (
+                                    <circle 
+                                        key={col.id}
+                                        cx="50" cy="50" r="40" 
+                                        fill="none" 
+                                        stroke={color} 
+                                        strokeWidth="12"
+                                        strokeDasharray={dashArray}
+                                        strokeDashoffset={dashOffset}
+                                        transform="rotate(-90 50 50)"
+                                    />
+                                );
+                            })}
+                            
                             {/* Center text */}
-                            <text x="50" y="46" textAnchor="middle" className={styles.donutValue}>
-                                {completionPercent}%
+                            <text x="50" y="52" textAnchor="middle" className={styles.donutValue} style={{ fontSize: '18px' }}>
+                                {projectStats?.total || 0}
                             </text>
-                            <text x="50" y="58" textAnchor="middle" className={styles.donutLabel}>
-                                Complete
+                            <text x="50" y="65" textAnchor="middle" className={styles.donutLabel} style={{ fontSize: '8px' }}>
+                                Total Tasks
                             </text>
                         </svg>
                         <div className={styles.legend}>
-                            <div className={styles.legendItem}>
-                                <span className={styles.legendDot} style={{ background: 'var(--success)' }}></span>
-                                Completed ({stats.completed})
-                            </div>
-                            <div className={styles.legendItem}>
-                                <span className={styles.legendDot} style={{ background: 'var(--info)' }}></span>
-                                In Progress ({stats.inProgress})
-                            </div>
-                            <div className={styles.legendItem}>
-                                <span className={styles.legendDot} style={{ background: 'var(--error)' }}></span>
-                                Overdue ({stats.overdue})
-                            </div>
-                            <div className={styles.legendItem}>
-                                <span className={styles.legendDot} style={{ background: 'var(--border)' }}></span>
-                                To Do ({stats.total - stats.completed - stats.inProgress - stats.overdue})
-                            </div>
+                            {projectStats && projectStats.columns.map((col, index) => {
+                                const colors = ['var(--success)', 'var(--info)', 'var(--warning)', 'var(--error)', '#8B5CF6', '#EC4899', '#10B981'];
+                                const color = colors[index % colors.length];
+                                return (
+                                    <div key={col.id} className={styles.legendItem}>
+                                        <span className={styles.legendDot} style={{ background: color }}></span>
+                                        {col.title} ({col.count})
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

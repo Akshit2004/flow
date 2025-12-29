@@ -2,6 +2,8 @@
 
 import React from 'react';
 import styles from './TaskCard.module.css';
+import { useContextMenu } from '@/context/ContextMenuContext';
+import { Edit2, Trash2, Flag, ArrowRight, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface TaskProps {
   id: string;
@@ -12,13 +14,64 @@ interface TaskProps {
   index: number;
   onDragStart: (e: React.DragEvent, id: string) => void;
   onClick: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  onPriorityChange: (priority: 'LOW' | 'MEDIUM' | 'HIGH') => void;
+  onStatusChange: (status: string) => void;
+  // New props
+  onMoveNext: () => void;
+  isLastColumn: boolean;
 }
 
-export default function TaskCard({ id, ticketId, title, priority, onDragStart, onClick }: TaskProps) {
+export default function TaskCard({ 
+  id, ticketId, title, priority, status, onDragStart, onClick, 
+  onEdit, onDelete, onPriorityChange, onStatusChange, onMoveNext, isLastColumn
+}: TaskProps) {
+  const { showContextMenu } = useContextMenu();
+
   const priorityClass = 
     priority === 'HIGH' ? styles.priorityHigh :
     priority === 'MEDIUM' ? styles.priorityMedium :
     styles.priorityLow;
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault(); 
+    
+    showContextMenu(e, [
+      { 
+        label: 'Edit Task', 
+        icon: <Edit2 size={18} />, 
+        action: onEdit, 
+        shortcut: 'E' 
+      },
+      { 
+        label: 'Higher Priority', 
+        icon: <ArrowUp size={18} />, 
+        action: () => onPriorityChange(priority === 'LOW' ? 'MEDIUM' : 'HIGH'),
+        disabled: priority === 'HIGH'
+      },
+      { 
+        label: 'Lower Priority', 
+        icon: <ArrowDown size={18} />, 
+        action: () => onPriorityChange(priority === 'HIGH' ? 'MEDIUM' : 'LOW'),
+        disabled: priority === 'LOW'
+      },
+      { 
+        label: 'Move to Next', 
+        icon: <ArrowRight size={18} />, 
+        action: onMoveNext,
+        disabled: isLastColumn
+      },
+      { variant: 'separator', label: '', action: () => {} },
+      { 
+        label: 'Delete Task', 
+        icon: <Trash2 size={18} />, 
+        action: onDelete, 
+        shortcut: 'Del', 
+        variant: 'destructive' 
+      }
+    ], id);
+  };
 
   return (
     <div 
@@ -26,6 +79,7 @@ export default function TaskCard({ id, ticketId, title, priority, onDragStart, o
       draggable
       onDragStart={(e) => onDragStart(e, id)}
       onClick={onClick}
+      onContextMenu={handleContextMenu}
     >
       <div className={styles.title} style={{ marginBottom: ticketId ? '4px' : '8px' }}>{title}</div>
       <div className={styles.meta} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

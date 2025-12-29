@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useOptimistic } from 'react';
-import { updateTaskStatus } from '@/actions/task';
+import { updateTaskStatus, updateTaskDetails, deleteTask } from '@/actions/task';
 import { updateProjectColumns } from '@/actions/project';
 import TaskCard from './TaskCard';
 import Button from '@/components/ui/Button';
@@ -206,6 +206,35 @@ export default function KanbanBoard({
                       index={index}
                       onDragStart={handleTaskDragStart}
                       onClick={() => setSelectedTask(task)}
+                      
+                      onEdit={() => setSelectedTask(task)}
+                      onDelete={() => {
+                        if (confirm('Are you sure you want to delete this task?')) {
+                            handleDeleteTask(task._id);
+                            deleteTask(task._id);
+                        }
+                      }}
+                      onPriorityChange={async (newPriority) => {
+                          const updated = { ...task, priority: newPriority };
+                          setTasks(prev => prev.map(t => t._id === task._id ? updated : t));
+                          await updateTaskDetails(task._id, { priority: newPriority });
+                      }}
+                      onStatusChange={async (newStatus) => {
+                          const updated = { ...task, status: newStatus };
+                          setTasks(prev => prev.map(t => t._id === task._id ? updated : t));
+                          await updateTaskStatus(task._id, newStatus, 0);
+                      }}
+                      // Move to Next Logic
+                      onMoveNext={async () => {
+                          const colIndex = localColumns.findIndex(c => c.id === task.status);
+                          if (colIndex === -1 || colIndex >= localColumns.length - 1) return;
+                          
+                          const nextCol = localColumns[colIndex + 1];
+                          const updated = { ...task, status: nextCol.id };
+                          setTasks(prev => prev.map(t => t._id === task._id ? updated : t));
+                          await updateTaskStatus(task._id, nextCol.id, 0);
+                      }}
+                      isLastColumn={localColumns.findIndex(c => c.id === task.status) === localColumns.length - 1}
                     />
                   ))}
                </div>

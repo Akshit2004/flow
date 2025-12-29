@@ -28,6 +28,41 @@ export interface DailyCompletion {
     count: number;
 }
 
+export interface ProjectTaskStats {
+    total: number;
+    columns: {
+        id: string;
+        title: string;
+        count: number;
+    }[];
+}
+
+export async function getProjectTaskStats(projectId: string): Promise<ProjectTaskStats> {
+    const session = await getSession();
+    if (!session) {
+        return { total: 0, columns: [] };
+    }
+
+    await dbConnect();
+
+    // Get specific project with columns
+    const project = await Project.findById(projectId).select('columns').lean();
+    if (!project) return { total: 0, columns: [] };
+
+    const tasks = await Task.find({ project: projectId }).select('status').lean();
+
+    const stats = {
+        total: tasks.length,
+        columns: project.columns.map(col => ({
+            id: col.id,
+            title: col.title,
+            count: tasks.filter(t => t.status === col.id).length
+        }))
+    };
+
+    return stats;
+}
+
 export async function getTaskStats(): Promise<TaskStats> {
     const session = await getSession();
     if (!session) {

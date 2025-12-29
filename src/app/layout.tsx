@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { ToastProvider } from "@/components/ui/Toast";
+import { ThemeProvider } from "@/components/ui/ThemeProvider";
+import { ContextMenuProvider } from "@/context/ContextMenuContext";
+import ContextMenu from "@/components/ui/ContextMenu";
+import NextTopLoader from 'nextjs-toploader';
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Project Flow",
+  title: "Flow",
   description: "Modern Project Management Tool",
   icons: {
     icon: "/logo.svg",
@@ -14,10 +19,6 @@ export const metadata: Metadata = {
   },
 };
 
-import { ToastProvider } from "@/components/ui/Toast";
-import { ThemeProvider } from "@/components/ui/ThemeProvider";
-
-import NextTopLoader from 'nextjs-toploader';
 
 export default function RootLayout({
   children,
@@ -41,7 +42,10 @@ export default function RootLayout({
         />
         <ThemeProvider>
           <ToastProvider>
-            {children}
+            <ContextMenuProvider>
+              <ContextMenu />
+              {children}
+            </ContextMenuProvider>
           </ToastProvider>
         </ThemeProvider>
       </body>
