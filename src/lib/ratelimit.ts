@@ -43,7 +43,10 @@ export class RateLimiter {
         // 5 requests per 10 seconds
         return new RateLimiter(
             new Ratelimit({
-                redis: Redis.fromEnv(),
+                redis: new Redis({
+                    url: redisUrl,
+                    token: redisToken,
+                }),
                 limiter: Ratelimit.slidingWindow(5, "10 s"),
                 analytics: true,
             }),
@@ -60,7 +63,10 @@ export class RateLimiter {
         // 60 requests per 60 seconds
         return new RateLimiter(
             new Ratelimit({
-                redis: Redis.fromEnv(),
+                redis: new Redis({
+                    url: redisUrl,
+                    token: redisToken,
+                }),
                 limiter: Ratelimit.slidingWindow(60, "60 s"),
                 analytics: true,
             }),
