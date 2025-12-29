@@ -39,6 +39,10 @@ const UserSchema: Schema<IUser> = new Schema(
 );
 
 // Prevent overwrite on HMR
+if (process.env.NODE_ENV === 'development') {
+    delete mongoose.models.User;
+}
+
 const User: Model<IUser> =
     mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
 

@@ -85,6 +85,9 @@ export async function getTasks(projectId: string) {
 
     await dbConnect();
 
+    // Force model registration
+    console.log(`[getTasks] Ensuring models: ${User.modelName}, ${Project.modelName}`);
+
     // Verify membership
     const project = await Project.findOne({
         _id: projectId,

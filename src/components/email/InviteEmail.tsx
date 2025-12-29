@@ -41,13 +41,20 @@ export const InviteEmail: React.FC<Readonly<InviteEmailProps>> = ({
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-          <img
-            src="https://flow-pm.vercel.app/logo.png" 
-            alt="Flow"
+          <svg
             width="40"
             height="40"
+            viewBox="0 0 512 512"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
             style={{ display: 'block' }}
-          />
+          >
+            <path d="M128 256C128 185.298 185.298 128 256 128C326.702 128 384 185.298 384 256" stroke="#2563EB" strokeWidth="48" strokeLinecap="round"/>
+            <path d="M384 256C384 326.702 326.702 384 256 384C185.298 384 128 326.702 128 256" stroke="#10B981" strokeWidth="48" strokeLinecap="round"/>
+            <path d="M128 256L200 256" stroke="#2563EB" strokeWidth="48" strokeLinecap="round"/>
+            <path d="M312 256L384 256" stroke="#10B981" strokeWidth="48" strokeLinecap="round"/>
+            <circle cx="256" cy="256" r="32" fill="#2563EB"/>
+          </svg>
           <span style={{
             marginLeft: '12px',
             fontSize: '20px',

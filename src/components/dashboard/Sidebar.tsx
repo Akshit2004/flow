@@ -80,7 +80,7 @@ export default function Sidebar({ projects, user }: { projects: Project[]; user?
              
              {isProjectsExpanded && (
                  <div className={styles.groupContent}>
-                    {projects.map(project => (
+                     {projects.map(project => (
                         <Link
                             key={project._id}
                             href={`/dashboard/project/${project._id}`}
@@ -152,3 +152,7 @@ export default function Sidebar({ projects, user }: { projects: Project[]; user?
     </>
   );
 }
+
+// Extracted component to cleaner handle the mapping and active state logic if needed, 
+// but primarily to keep the main render clean.
+
