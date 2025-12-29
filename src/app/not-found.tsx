@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion, Variants } from "framer-motion";
 import { Home, FileQuestion, Compass, Map, Search } from "lucide-react";
 import Button from "@/components/ui/Button";
+import Image from "next/image";
 
 export default function NotFound() {
   const containerVariants: Variants = {
@@ -94,6 +95,10 @@ export default function NotFound() {
         animate="visible"
         className="relative z-10 flex max-w-lg flex-col items-center text-center"
       >
+        <motion.div variants={itemVariants} className="mb-6">
+          <Image src="/logo.svg" alt="Flow" width={80} height={80} />
+        </motion.div>
+
         <motion.h1 
           variants={itemVariants}
           className="mb-2 text-8xl font-black tracking-tighter sm:text-9xl"

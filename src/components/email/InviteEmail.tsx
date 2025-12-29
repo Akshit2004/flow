@@ -41,19 +41,13 @@ export const InviteEmail: React.FC<Readonly<InviteEmailProps>> = ({
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            background: `linear-gradient(135deg, ${brandColor}, #6366F1)`,
-            borderRadius: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontWeight: '900',
-            fontSize: '20px',
-            boxShadow: `0 4px 12px rgba(79, 70, 229, 0.3)`,
-          }}>F</div>
+          <img
+            src="https://flow-pm.vercel.app/logo.png" 
+            alt="Flow"
+            width="40"
+            height="40"
+            style={{ display: 'block' }}
+          />
           <span style={{
             marginLeft: '12px',
             fontSize: '20px',
