@@ -4,6 +4,7 @@ import React, { useState, useOptimistic } from 'react';
 import { updateTaskStatus, updateTaskDetails, deleteTask } from '@/actions/task';
 import { updateProjectColumns } from '@/actions/project';
 import TaskCard from './TaskCard';
+import { AnimatePresence } from 'framer-motion';
 import Button from '@/components/ui/Button';
 import CreateTaskModal from './CreateTaskModal';
 import TaskDetailModal from './TaskDetailModal';
@@ -195,14 +196,15 @@ export default function KanbanBoard({
                  <span className={styles.count}>{colTasks.length}</span>
                </div>
                <div className={styles.columnContent}>
-                  {colTasks.map((task, index) => (
-                    <TaskCard
-                      key={task._id}
-                      id={task._id}
-                      ticketId={task.ticketId}
-                      title={task.title}
-                      priority={task.priority}
-                      status={task.status}
+                  <AnimatePresence>
+                      {colTasks.map((task, index) => (
+                        <TaskCard
+                          key={task._id}
+                          id={task._id}
+                          ticketId={task.ticketId}
+                          title={task.title}
+                          priority={task.priority}
+                          status={task.status}
                       index={index}
                       onDragStart={handleTaskDragStart}
                       onClick={() => setSelectedTask(task)}
@@ -237,6 +239,7 @@ export default function KanbanBoard({
                       isLastColumn={localColumns.findIndex(c => c.id === task.status) === localColumns.length - 1}
                     />
                   ))}
+                  </AnimatePresence>
                </div>
              </div>
            )

@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { getTaskStats, getOverdueTasks, getCompletionTrend, getProjectTaskStats, TaskStats, OverdueTask, DailyCompletion, ProjectTaskStats } from '@/actions/analytics';
+import { getTaskStats, getOverdueTasks, getCompletionTrend, getProjectTaskStats, getWorkloadStats, TaskStats, OverdueTask, DailyCompletion, ProjectTaskStats, WorkloadStats } from '@/actions/analytics';
 import { CheckCircle, Clock, AlertTriangle, LayoutList, Loader2, TrendingUp, Download, Share2, Printer, Copy, Check } from 'lucide-react';
 import styles from './ProjectAnalytics.module.css';
+import StatusPieChart from './analytics/StatusPieChart';
+import WorkloadChart from './analytics/WorkloadChart';
+import CompletionChart from './analytics/CompletionChart';
 
 interface ProjectAnalyticsProps {
     projectId: string;
@@ -56,6 +59,7 @@ export default function ProjectAnalytics({ projectId }: ProjectAnalyticsProps) {
     const [projectStats, setProjectStats] = useState<ProjectTaskStats | null>(null);
     const [overdueTasks, setOverdueTasks] = useState<OverdueTask[]>([]);
     const [completionTrend, setCompletionTrend] = useState<DailyCompletion[]>([]);
+    const [workloadStats, setWorkloadStats] = useState<WorkloadStats[]>([]);
     const [loading, setLoading] = useState(true);
     const [copied, setCopied] = useState(false);
 
@@ -63,16 +67,18 @@ export default function ProjectAnalytics({ projectId }: ProjectAnalyticsProps) {
         async function fetchData() {
             setLoading(true);
             try {
-                const [statsData, overdueData, trendData, projectStatsData] = await Promise.all([
+                const [statsData, overdueData, trendData, projectStatsData, workloadData] = await Promise.all([
                     getTaskStats(),
                     getOverdueTasks(),
                     getCompletionTrend(7),
-                    getProjectTaskStats(projectId)
-                ]);
+                    getProjectTaskStats(projectId),
+                    getWorkloadStats(projectId)
+                ]) as [TaskStats, OverdueTask[], DailyCompletion[], ProjectTaskStats, WorkloadStats[]];
                 setStats(statsData);
                 setOverdueTasks(overdueData.filter(t => t.projectId === projectId));
                 setCompletionTrend(trendData);
                 setProjectStats(projectStatsData);
+                setWorkloadStats(workloadData);
             } catch (err) {
                 console.error('Failed to fetch analytics:', err);
             } finally {
@@ -121,7 +127,17 @@ export default function ProjectAnalytics({ projectId }: ProjectAnalyticsProps) {
 
     if (!stats) return null;
 
-    const maxTrend = Math.max(...completionTrend.map(d => d.count), 1);
+    // Prepare Pie Chart Data
+    const pieData = projectStats ? projectStats.columns
+        .filter(c => c.count > 0)
+        .map((col, index) => {
+            const colors = ['var(--success)', 'var(--info)', 'var(--warning)', 'var(--error)', '#8B5CF6', '#EC4899', '#10B981'];
+            return {
+                name: col.title,
+                value: col.count,
+                color: colors[index % colors.length]
+            };
+        }) : [];
 
     return (
         <div className={styles.container}>
@@ -145,93 +161,27 @@ export default function ProjectAnalytics({ projectId }: ProjectAnalyticsProps) {
             </div>
 
             {/* Charts Row */}
-            <div className={styles.chartsRow}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 {/* Donut Chart */}
-                <div className={styles.chartCard}>
+                <div className={styles.chartCard} style={{ minHeight: '380px' }}>
                     <h3 className={styles.chartTitle}>Task Distribution</h3>
-                    <div className={styles.donutContainer}>
-                        <svg viewBox="0 0 100 100" className={styles.donut}>
-                            {/* Background circle */}
-                            <circle cx="50" cy="50" r="40" fill="none" stroke="var(--border)" strokeWidth="12" />
-                            
-                            {projectStats && projectStats.columns.map((col, index) => {
-                                const count = col.count;
-                                const total = projectStats.total;
-                                if (total === 0 || count === 0) return null;
-
-                                const percentage = (count / total) * 100;
-                                const dashArray = `${percentage * 2.51} 251`; // 2 * PI * 40 ≈ 251
-                                
-                                // Calculate offset based on previous segments
-                                const prevCount = projectStats.columns.slice(0, index).reduce((acc, c) => acc + c.count, 0);
-                                const prevPercentage = (prevCount / total) * 100;
-                                const dashOffset = -(prevPercentage * 2.51);
-                                
-                                // Colors - cycle through a palette
-                                const colors = ['var(--success)', 'var(--info)', 'var(--warning)', 'var(--error)', '#8B5CF6', '#EC4899', '#10B981'];
-                                const color = colors[index % colors.length];
-
-                                return (
-                                    <circle 
-                                        key={col.id}
-                                        cx="50" cy="50" r="40" 
-                                        fill="none" 
-                                        stroke={color} 
-                                        strokeWidth="12"
-                                        strokeDasharray={dashArray}
-                                        strokeDashoffset={dashOffset}
-                                        transform="rotate(-90 50 50)"
-                                    />
-                                );
-                            })}
-                            
-                            {/* Center text */}
-                            <text x="50" y="52" textAnchor="middle" className={styles.donutValue} style={{ fontSize: '18px' }}>
-                                {projectStats?.total || 0}
-                            </text>
-                            <text x="50" y="65" textAnchor="middle" className={styles.donutLabel} style={{ fontSize: '8px' }}>
-                                Total Tasks
-                            </text>
-                        </svg>
-                        <div className={styles.legend}>
-                            {projectStats && projectStats.columns.map((col, index) => {
-                                const colors = ['var(--success)', 'var(--info)', 'var(--warning)', 'var(--error)', '#8B5CF6', '#EC4899', '#10B981'];
-                                const color = colors[index % colors.length];
-                                return (
-                                    <div key={col.id} className={styles.legendItem}>
-                                        <span className={styles.legendDot} style={{ background: color }}></span>
-                                        {col.title} ({col.count})
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
+                    <StatusPieChart data={pieData} />
                 </div>
 
-                {/* Bar Chart */}
-                <div className={styles.chartCard}>
+                {/* Completion Bar Chart */}
+                <div className={styles.chartCard} style={{ minHeight: '380px' }}>
                     <h3 className={styles.chartTitle}>Completions (Last 7 Days)</h3>
-                    <div className={styles.barChart}>
-                        {completionTrend.map((day) => (
-                            <div key={day.date} className={styles.barColumn}>
-                                <div className={styles.barWrapper}>
-                                    <div 
-                                        className={styles.bar} 
-                                        style={{ height: `${Math.max((day.count / maxTrend) * 100, 4)}%` }}
-                                    >
-                                        <span className={styles.barTooltip}>{day.count}</span>
-                                    </div>
-                                </div>
-                                <div className={styles.barLabel}>
-                                    {new Date(day.date).toLocaleDateString('en', { weekday: 'short' })}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <CompletionChart data={completionTrend} />
                     <div className={styles.chartFooter}>
                         <TrendingUp size={14} />
                         <span>{stats.completedThisWeek} tasks completed this week</span>
                     </div>
+                </div>
+
+                 {/* Workload Chart */}
+                 <div className={`${styles.chartCard} md:col-span-2`} style={{ minHeight: '380px' }}>
+                    <h3 className={styles.chartTitle}>Workload by Member (Open Tasks)</h3>
+                    <WorkloadChart data={workloadStats} />
                 </div>
             </div>
 
