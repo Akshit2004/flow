@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-import { Menu, X, Layout, Settings, LogOut, Plus, ChevronDown, ChevronRight, Folder } from "lucide-react";
+import { Menu, X, Layout, Settings, LogOut, Plus, ChevronDown, ChevronRight, Folder, MoreHorizontal, Trash2 } from "lucide-react";
 import { logout } from "@/actions/auth";
-import Button from "@/components/ui/Button";
+import { deleteProject } from "@/actions/project";
+import { useContextMenu } from "@/context/ContextMenuContext";
 import styles from "@/app/dashboard/layout.module.css";
 import clsx from "clsx";
 import CreateProjectModal from "@/components/board/CreateProjectModal";
@@ -22,8 +23,38 @@ export default function Sidebar({ projects, user }: { projects: Project[]; user?
   const [isProjectsExpanded, setIsProjectsExpanded] = useState(true);
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { showContextMenu } = useContextMenu();
 
   const toggleSidebar = () => setIsOpen(!isOpen);
+
+  const handleProjectContextMenu = (e: React.MouseEvent, project: Project) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    showContextMenu(e, [
+        {
+            label: 'Settings',
+            icon: <Settings size={16} />,
+            action: () => router.push(`/dashboard/project/${project._id}/settings`)
+        },
+        { variant: 'separator', label: '', action: () => {} },
+        {
+            label: 'Delete Project',
+            icon: <Trash2 size={16} />,
+            variant: 'destructive',
+            action: async () => {
+                const confirmed = window.confirm(`Are you sure you want to delete "${project.name}"? This action cannot be undone.`);
+                if (confirmed) {
+                    await deleteProject(project._id);
+                    if (pathname.includes(project._id)) {
+                        router.push('/dashboard');
+                    }
+                }
+            }
+        }
+    ]);
+  };
 
   return (
     <>
@@ -81,15 +112,35 @@ export default function Sidebar({ projects, user }: { projects: Project[]; user?
              {isProjectsExpanded && (
                  <div className={styles.groupContent}>
                      {projects.map(project => (
-                        <Link
+                        <div 
                             key={project._id}
-                            href={`/dashboard/project/${project._id}`}
                             className={clsx(styles.subNavItem, { [styles.active]: pathname === `/dashboard/project/${project._id}` })}
-                            onClick={() => setIsOpen(false)}
+                            style={{ paddingRight: '4px' }}
+                            onContextMenu={(e) => handleProjectContextMenu(e, project)}
                         >
-                            <Folder size={14} className={styles.projectIcon} />
-                            <span>{project.name}</span>
-                        </Link>
+                            <Link
+                                href={`/dashboard/project/${project._id}`}
+                                className="flex-1 flex items-center gap-3 overflow-hidden"
+                                onClick={() => setIsOpen(false)}
+                                style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, overflow: 'hidden' }}
+                            >
+                                <Folder size={14} className={styles.projectIcon} />
+                                <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{project.name}</span>
+                            </Link>
+                            
+                            <button
+                                className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={(e) => handleProjectContextMenu(e, project)}
+                                style={{ 
+                                    padding: '2px', 
+                                    display: 'flex', 
+                                    borderRadius: '4px',
+                                    color: 'var(--text-muted)'
+                                }}
+                            >
+                                <MoreHorizontal size={14} />
+                            </button>
+                        </div>
                     ))}
                     {projects.length === 0 && (
                         <div className={styles.emptyState}>No projects yet</div>

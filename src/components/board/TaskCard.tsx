@@ -41,8 +41,7 @@ export default function TaskCard({
       { 
         label: 'Edit Task', 
         icon: <Edit2 size={18} />, 
-        action: onEdit, 
-        shortcut: 'E' 
+        action: onEdit
       },
       { 
         label: 'Higher Priority', 
@@ -67,7 +66,6 @@ export default function TaskCard({
         label: 'Delete Task', 
         icon: <Trash2 size={18} />, 
         action: onDelete, 
-        shortcut: 'Del', 
         variant: 'destructive' 
       }
     ], id);
