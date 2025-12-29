@@ -75,3 +75,9 @@ export class RateLimiter {
         );
     }
 }
+
+export async function checkRateLimit(identifier: string, type: 'strict' | 'moderate' = 'moderate'): Promise<{ success: boolean }> {
+    const limiter = type === 'strict' ? RateLimiter.strict() : RateLimiter.moderate();
+    const success = await limiter.check(identifier);
+    return { success };
+}

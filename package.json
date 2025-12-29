@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest"
   },
   "dependencies": {
     "@upstash/ratelimit": "^2.0.7",
@@ -33,17 +34,25 @@
     "@serwist/build": "^9.4.2",
     "@serwist/next": "^9.4.2",
     "@tailwindcss/postcss": "^4.1.18",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/nodemailer": "^7.0.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.1.2",
     "autoprefixer": "^10.4.23",
     "eslint": "^9",
     "eslint-config-next": "^15.0.3",
+    "jsdom": "^27.4.0",
     "postcss": "^8.5.6",
     "serwist": "^9.4.2",
     "tailwindcss": "^4.1.18",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.16",
+    "zod": "^4.2.1",
+    "zod-form-data": "^3.0.1"
   }
 }

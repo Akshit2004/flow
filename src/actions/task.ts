@@ -7,6 +7,9 @@ import User from '@/models/User';
 import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { logActivity } from './activity';
+import { createTaskSchema, updateTaskSchema, addCommentSchema } from '@/lib/schemas';
+import { logger } from '@/lib/logger';
+import { checkRateLimit } from '@/lib/ratelimit';
 
 export interface TaskState {
     error?: string;
@@ -19,15 +22,23 @@ export async function createTask(prevState: TaskState, formData: FormData): Prom
         return { error: 'Unauthorized' };
     }
 
-    const projectId = formData.get('projectId') as string;
-    const title = formData.get('title') as string;
-    const description = formData.get('description') as string;
-    const priority = formData.get('priority') as TaskPriority || 'MEDIUM';
-    const status = formData.get('status') as TaskStatus || 'TODO';
-
-    if (!title || !projectId) {
-        return { error: 'Title and Project ID are required' };
+    // Rate Limit Check
+    const { success } = await checkRateLimit(session.userId, 'strict');
+    if (!success) {
+        logger.warn('Rate limit exceeded for create task', { userId: session.userId });
+        return { error: 'Too many requests. Please try again later.' };
     }
+
+    // Validate using Zod
+    const validation = createTaskSchema.safeParse(formData);
+    if (!validation.success) {
+        // Return first error message
+        const errorMessage = validation.error.issues[0].message;
+        logger.warn('Task creation failed validation', { error: validation.error.flatten() });
+        return { error: errorMessage };
+    }
+
+    const { title, description, projectId, priority, status } = validation.data;
 
     await dbConnect();
 
@@ -35,13 +46,7 @@ export async function createTask(prevState: TaskState, formData: FormData): Prom
         const project = await Project.findById(projectId);
         if (!project) return { error: 'Project not found' };
 
-        // Generate Ticket ID if project has key, otherwise fallback or skip
-        // For now assuming key exists (new projects) or we might need migration
         let ticketId = undefined;
-        if (project.key || project.taskCount !== undefined) {
-            // Atomic increment would be better but for MVP this is okay-ish 
-            // actually findOneAndUpdate is safer
-        }
 
         // Better approach:
         const projectDoc = await Project.findByIdAndUpdate(
@@ -60,7 +65,7 @@ export async function createTask(prevState: TaskState, formData: FormData): Prom
             project: projectId,
             priority,
             status,
-            order: await getNextOrder(projectId, status),
+            order: await getNextOrder(projectId, status as TaskStatus),
             ticketId,
         });
 
@@ -71,7 +76,11 @@ export async function createTask(prevState: TaskState, formData: FormData): Prom
             action: 'TASK_CREATED',
             metadata: { title, ticketId }
         });
+
+        logger.info('Task created successfully', { taskId: task._id, projectId });
+
     } catch (error) {
+        logger.error('Failed to create task', error, { projectId, title });
         return { error: 'Failed to create task' };
     }
 
@@ -228,16 +237,24 @@ export async function updateTaskDetails(taskId: string, updates: Partial<{
     const session = await getSession();
     if (!session) return { error: 'Unauthorized' };
 
+    const validation = updateTaskSchema.safeParse(updates);
+    if (!validation.success) {
+        logger.warn('Task update failed validation', { error: validation.error.flatten(), taskId });
+        return { error: 'Invalid update data' };
+    }
+
     await dbConnect();
 
     try {
-        const task = await Task.findByIdAndUpdate(taskId, { $set: updates }, { new: true })
+        const task = await Task.findByIdAndUpdate(taskId, { $set: validation.data }, { new: true })
             .populate('assignedTo', 'name email avatar')
             .populate('comments.user', 'name email avatar');
 
         if (!task) return { error: 'Task not found' };
 
         revalidatePath(`/dashboard/project/${task.project}`);
+
+        logger.info('Task updated', { taskId, updates: Object.keys(updates) });
 
         const plainTask = task.toObject();
         return {
@@ -267,6 +284,7 @@ export async function updateTaskDetails(taskId: string, updates: Partial<{
             }
         };
     } catch (error) {
+        logger.error('Failed to update task', error, { taskId });
         return { error: 'Failed to update task' };
     }
 }
@@ -274,6 +292,11 @@ export async function updateTaskDetails(taskId: string, updates: Partial<{
 export async function addComment(taskId: string, text: string) {
     const session = await getSession();
     if (!session || !session.userId) return { error: 'Unauthorized' };
+
+    const validation = addCommentSchema.safeParse({ taskId, text });
+    if (!validation.success) {
+        return { error: 'Invalid comment data' };
+    }
 
     await dbConnect();
 
@@ -283,7 +306,7 @@ export async function addComment(taskId: string, text: string) {
             {
                 $push: {
                     comments: {
-                        text,
+                        text: validation.data.text,
                         user: session.userId,
                         createdAt: new Date()
                     }
@@ -303,6 +326,8 @@ export async function addComment(taskId: string, text: string) {
             action: 'COMMENT_ADDED',
             metadata: { preview: text.substring(0, 100) }
         });
+
+        logger.info('Comment added', { taskId, userId: session.userId });
 
         revalidatePath(`/dashboard/project/${task.project}`);
 
@@ -329,6 +354,7 @@ export async function addComment(taskId: string, text: string) {
             }
         };
     } catch (error) {
+        logger.error('Failed to add comment', error, { taskId });
         return { error: 'Failed to add comment' };
     }
 }
