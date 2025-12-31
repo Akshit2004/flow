@@ -10,7 +10,6 @@ import { deleteProject } from "@/actions/project";
 import { useContextMenu } from "@/context/ContextMenuContext";
 import styles from "@/app/dashboard/layout.module.css";
 import clsx from "clsx";
-import CreateProjectModal from "@/components/board/CreateProjectModal";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
 interface Project {
@@ -21,7 +20,8 @@ interface Project {
 export default function Sidebar({ projects, user }: { projects: Project[]; user?: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isProjectsExpanded, setIsProjectsExpanded] = useState(true);
-  const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
+  // State for new project modal removed in favor of onboarding wizard
+  // const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { showContextMenu } = useContextMenu();
@@ -102,8 +102,10 @@ export default function Sidebar({ projects, user }: { projects: Project[]; user?
                     className={styles.addProjectButton}
                     onClick={(e) => {
                         e.stopPropagation();
-                        setIsNewProjectModalOpen(true);
+                        // Redirect to onboarding instead of modal
+                        router.push('/onboarding');
                     }}
+                    title="New Project"
                 >
                     <Plus size={14} />
                 </button>
@@ -147,7 +149,7 @@ export default function Sidebar({ projects, user }: { projects: Project[]; user?
                     )}
                      <button 
                         className={styles.newProjectItem}
-                        onClick={() => setIsNewProjectModalOpen(true)}
+                        onClick={() => router.push('/onboarding')}
                     >
                         <Plus size={14} />
                         <span>Create Project</span>
@@ -195,10 +197,6 @@ export default function Sidebar({ projects, user }: { projects: Project[]; user?
       {/* Overlay */}
       {isOpen && (
         <div className={styles.overlay} onClick={toggleSidebar} />
-      )}
-
-      {isNewProjectModalOpen && (
-          <CreateProjectModal onClose={() => setIsNewProjectModalOpen(false)} />
       )}
     </>
   );

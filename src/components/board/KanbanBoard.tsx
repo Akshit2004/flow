@@ -47,6 +47,8 @@ const DEFAULT_COLUMNS = [
   { id: 'COMPLETED', title: 'Completed' },
 ];
 
+import ProjectOnboarding from './ProjectOnboarding';
+
 export default function KanbanBoard({ 
     projectId, 
     initialTasks, 
@@ -75,6 +77,8 @@ export default function KanbanBoard({
   const [localColumns, setLocalColumns] = useState(columns);
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
   const [draggedColId, setDraggedColId] = useState<string | null>(null);
+
+  // ... (drag handlers omitted for brevity, logic remains same)
 
   // Task Drag Handlers
   const handleTaskDragStart = (e: React.DragEvent, id: string) => {
@@ -176,6 +180,13 @@ export default function KanbanBoard({
           <Plus size={16} /> Add Task
         </Button>
       </div>
+
+      {tasks.length === 0 && (
+        <ProjectOnboarding 
+            onCreateTask={() => setIsModalOpen(true)} 
+            projectId={projectId} 
+        />
+      )}
 
       <div className={styles.columns}>
         {localColumns.map(col => {

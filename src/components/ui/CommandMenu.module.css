@@ -1,0 +1,159 @@
+/* CommandMenu.module.css */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 9998;
+  animation: fadeIn 0.1s ease;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15vh;
+}
+
+.contentWrapper {
+  width: 100%;
+  max-width: 640px;
+  animation: slideDown 0.1s ease;
+}
+
+.commandBase {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  font-family: var(--font-inter), sans-serif;
+  color: var(--text-main);
+  /* Ensure it has a background so text is visible */
+  background-color: var(--surface);
+}
+
+.commandBase :global([cmdk-input]) {
+  width: 100%;
+  font-family: inherit;
+  font-size: 1.1rem;
+  padding: 1.5rem;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  outline: none;
+  background: transparent;
+  color: var(--text-main);
+}
+
+.commandBase :global([cmdk-input])::placeholder {
+  color: var(--text-muted);
+}
+
+.commandBase :global([cmdk-list]) {
+  max-height: 400px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.5rem;
+  transition: height 100ms ease;
+}
+
+/* Scrollbar styling */
+.commandBase :global([cmdk-list])::-webkit-scrollbar {
+  width: 6px;
+}
+
+.commandBase :global([cmdk-list])::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.commandBase :global([cmdk-group-heading]) {
+  user-select: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.commandBase :global([cmdk-item]) {
+  content-visibility: auto;
+  cursor: pointer;
+  height: 3rem;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 0.75rem;
+  color: var(--text-secondary);
+  user-select: none;
+  will-change: background, color;
+  transition: all 0.1s ease;
+}
+
+.commandBase :global([cmdk-item][data-selected="true"]) {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.commandBase :global([cmdk-item][data-disabled="true"]) {
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.commandBase :global([cmdk-item]) svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  opacity: 0.7;
+}
+
+.commandBase :global([cmdk-item][data-selected="true"]) svg {
+  opacity: 1;
+}
+
+.commandBase :global([cmdk-empty]) {
+  font-size: 0.9rem;
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.shortcut {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--background);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+}
+
+.commandBase :global([cmdk-item][data-selected="true"]) .shortcut {
+  color: var(--primary);
+  /* subtle contrast against blue bg */
+  background: rgba(255, 255, 255, 0.9);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}

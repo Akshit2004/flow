@@ -5,6 +5,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import { ContextMenuProvider } from "@/context/ContextMenuContext";
 import ContextMenu from "@/components/ui/ContextMenu";
+import { CommandMenu } from "@/components/ui/CommandMenu";
 import NextTopLoader from 'nextjs-toploader';
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -47,6 +48,7 @@ export default function RootLayout({
         <ThemeProvider>
           <ToastProvider>
             <ContextMenuProvider>
+              <CommandMenu />
               <ContextMenu />
               {children}
             </ContextMenuProvider>

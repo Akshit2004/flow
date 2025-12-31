@@ -34,9 +34,10 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
             setTheme(savedTheme);
             document.documentElement.setAttribute('data-theme', savedTheme);
-        } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            setTheme('dark');
-            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            // Default to light mode, ignoring system preference
+            setTheme('light');
+            document.documentElement.setAttribute('data-theme', 'light');
         }
 
         // Listen for changes in other tabs

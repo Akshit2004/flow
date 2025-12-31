@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Button from "@/components/ui/Button";
-import CreateProjectModal from "@/components/board/CreateProjectModal";
 import { Plus, Folder } from "lucide-react";
 import styles from "./ProjectsView.module.css";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Project {
   _id: string;
@@ -15,15 +15,15 @@ interface Project {
 }
 
 export default function ProjectsView({ projects }: { projects: Project[] }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <div>
       <div className={styles.header}>
         <h1 className={styles.title}>Projects</h1>
-        <Button onClick={() => setIsModalOpen(true)}>
-          <Plus size={18} />
-          New Project
+        <Button onClick={() => router.push('/onboarding')}>
+            <Plus size={18} />
+            New Project
         </Button>
       </div>
 
@@ -34,8 +34,8 @@ export default function ProjectsView({ projects }: { projects: Project[] }) {
           </div>
           <h3 className={styles.emptyTitle}>No projects yet</h3>
           <p className={styles.emptyDesc}>Create your first project to get started.</p>
-          <Button variant="secondary" onClick={() => setIsModalOpen(true)}>
-            Create Project
+          <Button variant="secondary" onClick={() => router.push('/onboarding')}>
+              Create Project
           </Button>
         </div>
       ) : (
@@ -54,8 +54,6 @@ export default function ProjectsView({ projects }: { projects: Project[] }) {
           ))}
         </div>
       )}
-
-      {isModalOpen && <CreateProjectModal onClose={() => setIsModalOpen(false)} />}
     </div>
   );
 }

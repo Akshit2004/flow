@@ -14,10 +14,13 @@
     background-color: var(--surface);
     border-radius: var(--radius-lg);
     width: 90%;
-    max-width: 500px;
+    max-width: 800px;
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border);
     animation: scaleIn 0.2s ease-out;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .header {
@@ -26,6 +29,7 @@
     justify-content: space-between;
     padding: 1.25rem;
     border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
 }
 
 .title {
@@ -48,13 +52,63 @@
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    overflow-y: auto;
+}
+
+.sectionTitle {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.templateGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.templateCard {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface);
+    text-align: left;
+}
+
+.templateCard:hover {
+    border-color: var(--primary);
+    background-color: var(--background);
+}
+
+.templateCard.selected {
+    border-color: var(--primary);
+    background-color: var(--primary-light);
+    box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+.templateName {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.templateDesc {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
 }
 
 .footer {
     display: flex;
     justify-content: flex-end;
     gap: 0.75rem;
-    margin-top: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
 }
 
 .error {
