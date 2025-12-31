@@ -1,0 +1,121 @@
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: var(--shadow-md);
+    animation: slideUp 0.3s ease-out;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    text-align: center;
+}
+
+.heading {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.subtext {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    max-width: 400px;
+    line-height: 1.5;
+}
+
+.templateGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    width: 100%;
+    margin: 1rem 0;
+    text-align: left;
+}
+
+.templateOption {
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.templateOption:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.templateOption.selected {
+    border-color: var(--primary);
+    background-color: var(--primary-light);
+    box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+.templateName {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+.templateDesc {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    text-align: left;
+}
+
+.nextButton,
+.createButton,
+.finishButton {
+    width: 100%;
+    justify-content: center;
+}
+
+.error {
+    color: var(--error);
+    font-size: 0.875rem;
+}
+
+.successIcon {
+    margin-bottom: 1rem;
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

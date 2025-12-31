@@ -1,0 +1,217 @@
+.container {
+    background: linear-gradient(to bottom right, var(--surface), var(--background));
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    margin-bottom: 2.5rem;
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary, #8b5cf6));
+}
+
+.dismissButton {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem;
+    color: var(--text-secondary);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    border: none;
+}
+
+.dismissButton:hover {
+    background-color: var(--background);
+    color: var(--text-primary);
+}
+
+.header {
+    margin-bottom: 2.5rem;
+    max-width: 600px;
+}
+
+.title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.description {
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+/* Progress Bar */
+.progressContainer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.progressLabel {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary);
+    white-space: nowrap;
+}
+
+.progressBar {
+    flex-grow: 1;
+    height: 6px;
+    background-color: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    max-width: 200px;
+}
+
+.progressFill {
+    height: 100%;
+    background-color: var(--primary);
+    border-radius: 3px;
+    transition: width 0.5s ease-out;
+}
+
+.steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.stepCard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    cursor: default;
+}
+
+.stepCard:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary);
+}
+
+.stepCard.completed {
+    border-color: var(--success, #10b981);
+    background: linear-gradient(to bottom right, var(--surface), rgba(16, 185, 129, 0.05));
+}
+
+.iconWrapper {
+    width: 52px;
+    height: 52px;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+    color: var(--text-primary);
+    transition: all 0.3s;
+}
+
+.stepCard:hover .iconWrapper {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.stepCard.completed .iconWrapper {
+    background: var(--success, #10b981);
+    color: white;
+    border-color: var(--success, #10b981);
+}
+
+.stepTitle {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.stepDesc {
+    font-size: 0.925rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+.actionButton,
+.linkButton {
+    width: 100%;
+    margin-top: auto;
+}
+
+.linkButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    transition: all 0.2s;
+    text-decoration: none;
+    height: 36px;
+    /* Match button height */
+}
+
+.linkButton:hover {
+    background: var(--background);
+    border-color: var(--text-secondary);
+}
+
+.completedBadge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    color: var(--success, #10b981);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.stepCard.completed .completedBadge {
+    opacity: 1;
+    transform: scale(1);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

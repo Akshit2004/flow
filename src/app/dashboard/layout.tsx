@@ -5,6 +5,9 @@ import Project from "@/models/Project";
 import Sidebar from "@/components/dashboard/Sidebar";
 import styles from "./layout.module.css";
 
+import User from "@/models/User";
+import { redirect } from "next/navigation";
+
 export default async function DashboardLayout({
   children,
 }: {
@@ -14,6 +17,7 @@ export default async function DashboardLayout({
   if (!session) return notFound();
 
   await dbConnect();
+
   // Fetch only name and _id for the sidebar
   const projects = await Project.find({
     $or: [
@@ -23,6 +27,13 @@ export default async function DashboardLayout({
   })
     .select("name _id")
     .lean();
+
+  // Enforce Onboarding
+  // Skip if they already have completed it OR if they already have projects (legacy users)
+  const user = await User.findById(session.userId).lean();
+  if ((!user || !user.onboardingCompleted) && projects.length === 0) {
+      redirect("/onboarding");
+  }
 
   const serializedProjects = projects.map(p => ({
     ...p,
