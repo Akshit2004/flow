@@ -7,6 +7,7 @@ export interface IProject extends Document {
     owner: IUser; // Reference to User
     key: string;
     taskCount: number;
+    showOnboarding?: boolean;
     members: { user: IUser | mongoose.Types.ObjectId | string, role: 'ADMIN' | 'MEMBER' }[];
     columns: { id: string; title: string; order: number }[];
     labels: { id: string; name: string; color: string }[];
@@ -30,6 +31,10 @@ const ProjectSchema: Schema<IProject> = new Schema(
         taskCount: {
             type: Number,
             default: 0,
+        },
+        showOnboarding: {
+            type: Boolean,
+            default: true,
         },
         description: {
             type: String,

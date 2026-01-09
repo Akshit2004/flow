@@ -1,62 +1,70 @@
 "use client";
 
-import { useState } from 'react';
-import KanbanBoard from '@/components/board/KanbanBoard';
-import ProjectTabs from './ProjectTabs';
-import ProjectAnalytics from './ProjectAnalytics';
+import { useState } from "react";
+import KanbanBoard from "@/components/board/KanbanBoard";
+import ProjectTabs from "./ProjectTabs";
+import ProjectAnalytics from "./ProjectAnalytics";
 
 interface Column {
-    id: string;
-    title: string;
-    order: number;
-    _id?: string;
+  id: string;
+  title: string;
+  order: number;
+  _id?: string;
 }
 
 interface Task {
-    _id: string;
-    title: string;
-    description?: string;
-    status: string;
-    priority: 'LOW' | 'MEDIUM' | 'HIGH';
-    order: number;
-    project: string;
-    ticketId?: string;
-    assignedTo?: string;
-    dueDate?: string;
-    subtasks?: any[];
-    comments?: any[];
+  _id: string;
+  title: string;
+  description?: string;
+  status: string;
+  priority: "LOW" | "MEDIUM" | "HIGH";
+  order: number;
+  project: string;
+  ticketId?: string;
+  assignedTo?: string;
+  dueDate?: string;
+  subtasks?: any[];
+  comments?: any[];
 }
 
 interface ProjectViewProps {
-    projectId: string;
-    initialTasks: Task[];
-    columns: Column[];
-    labels?: { id: string; name: string; color: string }[];
+  projectId: string;
+  initialTasks: Task[];
+  columns: Column[];
+  labels?: { id: string; name: string; color: string }[];
+  showOnboarding?: boolean;
 }
 
-export default function ProjectView({ projectId, initialTasks, columns, labels = [] }: ProjectViewProps) {
-    const [activeTab, setActiveTab] = useState<'board' | 'analytics'>('board');
+export default function ProjectView({
+  projectId,
+  initialTasks,
+  columns,
+  labels = [],
+  showOnboarding = true,
+}: ProjectViewProps) {
+  const [activeTab, setActiveTab] = useState<"board" | "analytics">("board");
 
-    return (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <ProjectTabs 
-                projectId={projectId} 
-                activeTab={activeTab} 
-                onTabChange={setActiveTab} 
-            />
-            
-            <div style={{ flex: 1, marginTop: '16px' }}>
-                {activeTab === 'board' ? (
-                    <KanbanBoard 
-                        projectId={projectId} 
-                        initialTasks={initialTasks} 
-                        columns={columns} 
-                        labels={labels}
-                    />
-                ) : (
-                    <ProjectAnalytics projectId={projectId} />
-                )}
-            </div>
-        </div>
-    );
+  return (
+    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <ProjectTabs
+        projectId={projectId}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
+
+      <div style={{ flex: 1, marginTop: "16px" }}>
+        {activeTab === "board" ? (
+          <KanbanBoard
+            projectId={projectId}
+            initialTasks={initialTasks}
+            columns={columns}
+            labels={labels}
+            showOnboarding={showOnboarding}
+          />
+        ) : (
+          <ProjectAnalytics projectId={projectId} />
+        )}
+      </div>
+    </div>
+  );
 }
