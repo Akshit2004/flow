@@ -7,14 +7,14 @@ export const createTaskSchema = zfd.formData({
     description: zfd.text(z.string().optional()),
     projectId: zfd.text(z.string().min(1, 'Project ID is required')),
     priority: zfd.text(z.enum(['LOW', 'MEDIUM', 'HIGH']).default('MEDIUM')),
-    status: zfd.text(z.enum(['TODO', 'IN_PROGRESS', 'DONE', 'BACKLOG', 'CANCELED']).default('TODO')),
+    status: zfd.text(z.string().default('TODO')),
 });
 
 export const updateTaskSchema = z.object({
     title: z.string().min(1).max(100).optional(),
     description: z.string().optional(),
     priority: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
-    status: z.enum(['TODO', 'IN_PROGRESS', 'DONE', 'BACKLOG', 'CANCELED']).optional(),
+    status: z.string().optional(),
     assignedTo: z.string().optional(),
     dueDate: z.string().nullable().optional(), // Accepting string because it usually comes as ISO string from client
     labels: z.array(z.string()).optional(),

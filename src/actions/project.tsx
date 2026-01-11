@@ -10,6 +10,7 @@ import mongoose from "mongoose";
 export interface ProjectState {
   error?: string;
   success?: boolean;
+  projectId?: string;
 }
 
 export async function createProject(
@@ -32,7 +33,7 @@ export async function createProject(
 
   try {
     const key = await generateUniqueKey(name);
-    await Project.create({
+    const project = await Project.create({
       name,
       description,
       owner: session.userId,
@@ -42,12 +43,12 @@ export async function createProject(
         { user: new mongoose.Types.ObjectId(session.userId), role: "ADMIN" },
       ], // Add owner to members
     });
+
+    revalidatePath("/dashboard");
+    return { success: true, projectId: project._id.toString() };
   } catch (error) {
     return { error: "Failed to create project" };
   }
-
-  revalidatePath("/dashboard");
-  return { success: true };
 }
 
 export async function getProjects() {

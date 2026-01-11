@@ -10,6 +10,20 @@ import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+export async function updateProfile(data: { name: string }) {
+    const session = await getSession();
+    if (!session) throw new Error('Unauthorized');
+
+    await dbConnect();
+
+    await User.findByIdAndUpdate(session.userId, {
+        name: data.name
+    });
+
+    revalidatePath('/dashboard/settings');
+    return { success: true };
+}
+
 export async function changePassword(prevState: any, formData: FormData) {
     const currentPassword = formData.get('currentPassword') as string;
     const newPassword = formData.get('newPassword') as string;

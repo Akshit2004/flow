@@ -294,6 +294,7 @@ export default function KanbanBoard({
         <CreateTaskModal
           projectId={projectId}
           onClose={() => setIsModalOpen(false)}
+          columns={localColumns}
         />
       )}
 

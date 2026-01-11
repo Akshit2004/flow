@@ -104,7 +104,7 @@ export default function ProjectOnboarding({
           </div>
           <h4 className={styles.stepTitle}>Customize Board</h4>
           <p className={styles.stepDesc}>
-            Edit columns and labels to match your team's workflow.
+            Edit columns and labels to match your team&apos;s workflow.
           </p>
           <Link
             href={`/dashboard/project/${projectId}/settings`}

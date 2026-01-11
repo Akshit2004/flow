@@ -4,7 +4,7 @@ import ProfileCard from "@/components/settings/ProfileCard";
 import ThemeCard from "@/components/settings/ThemeCard";
 import AccountCard from "@/components/settings/AccountCard";
 import SecurityCard from "@/components/settings/SecurityCard";
-import NotificationCard from "@/components/settings/NotificationCard";
+import PreferencesCard from "@/components/settings/PreferencesCard";
 import styles from "./Settings.module.css";
 
 export default async function SettingsPage() {
@@ -12,14 +12,14 @@ export default async function SettingsPage() {
   if (!session) return notFound();
 
   const user = {
-    name: session.userName || 'User',
-    email: session.userEmail || 'user@example.com'
+    name: session.userName || "User",
+    email: session.userEmail || "user@example.com",
   };
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Settings</h1>
-      
+
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Profile</h2>
         <ProfileCard user={user} />
@@ -31,13 +31,13 @@ export default async function SettingsPage() {
       </div>
 
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Security</h2>
-        <SecurityCard />
+        <h2 className={styles.sectionTitle}>Preferences</h2>
+        <PreferencesCard />
       </div>
 
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Notifications</h2>
-        <NotificationCard />
+        <h2 className={styles.sectionTitle}>Security</h2>
+        <SecurityCard />
       </div>
 
       <div className={styles.section}>

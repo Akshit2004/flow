@@ -143,8 +143,8 @@
     margin-top: -0.5rem;
 }
 
-/* Notification Toggles */
-.notificationItem {
+/* Preference Items */
+.preferenceItem {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -152,82 +152,122 @@
     border-bottom: 1px solid var(--border);
 }
 
-.notificationItem:last-child {
+.preferenceItem:last-child {
     border-bottom: none;
 }
 
-.notificationInfo {
-    flex: 1;
-}
-
-.notificationHeader {
+.preferenceHeader {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 0.25rem;
     color: var(--text-main);
+}
+
+.preferenceLabel {
+    font-size: 0.9375rem;
     font-weight: 500;
 }
 
-.notificationLabel {
-    font-size: 0.9375rem;
-}
-
-.notificationDesc {
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-    margin-left: 1.6rem;
-    /* Align with text start */
-}
-
-/* Switch Component */
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 44px;
-    height: 24px;
-    flex-shrink: 0;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
+.select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background-color: var(--surface);
+    color: var(--text-main);
+    font-size: 0.875rem;
+    min-width: 200px;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--border);
-    /* OFF state */
-    transition: .3s;
-    border-radius: 24px;
+    transition: border-color 0.2s;
 }
 
-.slider:before {
+.select:hover {
+    border-color: var(--border-hover);
+}
+
+.select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* Avatar with hover overlay */
+.avatarWrapper {
+    position: relative;
+}
+
+.avatarOverlay {
     position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .3s;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
     border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s;
+    cursor: pointer;
+    border: none;
+    color: white;
 }
 
-input:checked+.slider {
-    background-color: var(--primary);
+.avatarWrapper:hover .avatarOverlay {
+    opacity: 1;
 }
 
-input:focus+.slider {
-    box-shadow: 0 0 1px var(--primary);
+.editableField {
+    position: relative;
 }
 
-input:checked+.slider:before {
-    transform: translateX(20px);
+.savedMessage {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--success);
+    font-size: 0.875rem;
+    padding: 0.5rem 0;
+}
+
+/* Password Strength */
+.strengthBar {
+    height: 4px;
+    background-color: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.strengthFill {
+    height: 100%;
+    transition: width 0.3s, background-color 0.3s;
+}
+
+.strengthFill.weak {
+    width: 33%;
+    background-color: var(--error);
+}
+
+.strengthFill.medium {
+    width: 66%;
+    background-color: var(--warning, #f59e0b);
+}
+
+.strengthFill.strong {
+    width: 100%;
+    background-color: var(--success);
+}
+
+.strengthText {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.strengthText.weak {
+    color: var(--error);
+}
+
+.strengthText.medium {
+    color: var(--warning, #f59e0b);
+}
+
+.strengthText.strong {
+    color: var(--success);
 }
